@@ -6,7 +6,7 @@
 import { onBeforeUnmount, onMounted, shallowRef } from 'vue'
 import PC from '@/components/view/PC.vue'
 import Phone from '@/components/view/Phone.vue'
-import {autoUpdate, getHaJimiTitle} from '@/utils/randomTitle.ts'
+import { autoUpdate, getHaJimiTitle } from '@/utils/randomTitle.ts'
 
 const currentComponent = shallowRef()
 

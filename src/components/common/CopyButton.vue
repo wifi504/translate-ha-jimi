@@ -62,6 +62,8 @@ function handleClick() {
   navigator.clipboard.writeText(props.copyText)
   setTimeout(() => isActive.value = false, 1000)
 }
+
+defineExpose({ handleClick })
 </script>
 
 <style scoped lang="less">

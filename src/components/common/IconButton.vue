@@ -1,6 +1,6 @@
 <template>
   <svg
-    v-if="props.icon === 'close'" :style="`width: ${props.size}px; height: ${props.size}px;
+    v-if="props.icon === 'close'" :style="`width: ${props.size}px; height: ${props.size}px; --rotate: ${props.rotate}deg;
   --theme: ${props.color}; --hover-theme: ${props.hoverColor}; --active-theme: ${props.activityColor};`"
     t="1752900712400"
     class="icon-btn" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -10,7 +10,7 @@
   </svg>
 
   <svg
-    v-if="props.icon === 'paste'" :style="`width: ${props.size}px; height: ${props.size}px;
+    v-if="props.icon === 'paste'" :style="`width: ${props.size}px; height: ${props.size}px; --rotate: ${props.rotate}deg;
   --theme: ${props.color}; --hover-theme: ${props.hoverColor}; --active-theme: ${props.activityColor};`"
     t="1752902651314"
     class="icon-btn" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -20,7 +20,7 @@
   </svg>
 
   <svg
-    v-if="props.icon === 'switch'" :style="`width: ${props.size}px; height: ${props.size}px;
+    v-if="props.icon === 'switch'" :style="`width: ${props.size}px; height: ${props.size}px; --rotate: ${props.rotate}deg;
   --theme: ${props.color}; --hover-theme: ${props.hoverColor}; --active-theme: ${props.activityColor};`"
     t="1752860313763"
     class="icon-btn"
@@ -41,12 +41,14 @@ const props = withDefaults(defineProps<{
   color?: string
   hoverColor?: string
   activityColor?: string
+  rotate?: number
 }>(), {
   icon: 'close',
   size: 24,
   color: '#444444',
   hoverColor: '#808080',
   activityColor: '#171717',
+  rotate: 0,
 })
 
 defineEmits(['click'])
@@ -54,6 +56,8 @@ defineEmits(['click'])
 
 <style scoped lang="less">
 .icon-btn {
+  transform: rotate(var(--rotate));
+
   path {
     fill: var(--theme);
   }
