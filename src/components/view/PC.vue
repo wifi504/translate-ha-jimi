@@ -34,8 +34,13 @@
       <strong style="width: 128px;">设置{{ t4 }}方言：</strong>
       <text-block v-model="seed" :rows="1" style="width: 300px; padding: 4px;" />
     </div>
+    <div class="ha-jimi-text" style="color: #4d4d4d;">
+      被{{ t5 }}入侵的人儿类网站会开始曼波，
+      {{ t6 }}们的名字往往会一直变化，
+      快来数数网站里有多少只{{ t7 }}。
+    </div>
   </div>
-  <foot-info ref="footInfoRef" />
+  <foot-info ref="footInfoRef" mode="pc"/>
 </template>
 
 <script setup lang="ts">
@@ -56,6 +61,9 @@ const t1 = getHaJimiTitle()
 const t2 = getHaJimiTitle()
 const t3 = getHaJimiTitle()
 const t4 = getHaJimiTitle()
+const t5 = getHaJimiTitle()
+const t6 = getHaJimiTitle()
+const t7 = getHaJimiTitle()
 
 const placeholder = computed(() => isToHaJimi.value ? '请输入要翻译成哈吉米语的内容...' : '请输入要翻译成人儿语的内容...')
 const translated = computed((): string => {
@@ -99,6 +107,9 @@ onMounted(() => {
   autoUpdate(t2)
   autoUpdate(t3)
   autoUpdate(t4)
+  autoUpdate(t5)
+  autoUpdate(t6)
+  autoUpdate(t7)
 })
 </script>
 
@@ -150,7 +161,7 @@ onMounted(() => {
         user-select: none;
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
+        align-items: flex-end;
 
         .title-item {
           display: flex;
