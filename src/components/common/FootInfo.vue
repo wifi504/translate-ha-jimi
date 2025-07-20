@@ -54,7 +54,7 @@ import { autoUpdate, getHaJimiTitle } from '@/utils/randomTitle.ts'
 const props = withDefaults(defineProps<{
   mode?: 'pc' | 'phone'
 }>(), {
-  mode: 'pc'
+  mode: 'pc',
 })
 
 const t1 = getHaJimiTitle()

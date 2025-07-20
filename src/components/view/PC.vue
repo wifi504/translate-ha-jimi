@@ -40,7 +40,7 @@
       快来数数网站里有多少只{{ t7 }}。
     </div>
   </div>
-  <foot-info ref="footInfoRef" mode="pc"/>
+  <foot-info ref="footInfoRef" mode="pc" />
 </template>
 
 <script setup lang="ts">
