@@ -1,7 +1,20 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 
-const arr: string[] = ['哈吉米', '哈基咪', '哈集米', '哈基米', '哈吉咪', '哈集咪']
+const arr: string[] = [
+  '哈吉米',
+  '哈吉咪',
+  '哈基米',
+  '哈基咪',
+  '哈集米',
+  '哈集咪',
+  '蛤吉米',
+  '蛤吉咪',
+  '蛤基米',
+  '蛤基咪',
+  '蛤集米',
+  '蛤集咪',
+]
 
 function autoUpdate(titleRef: Ref<string>, updateCallback?: () => void): void {
   setTimeout(() => {
