@@ -1,21 +1,30 @@
 <template>
   <div class="top-bar" :class="props.mode">
     <img class="avatar" src="../../assets/image/hjm.png" alt="LOGO">
-    <span class="title">哈吉米语翻译</span>
+    <span class="title">{{ title }}语翻译</span>
     <span v-if="props.mode === 'pc'" class="sub-title" @click="navigateBiliBili">→<span>哈</span>观看<span>吉米</span>演示视频，曼波~</span>
   </div>
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
+import { autoUpdate, getHaJimiTitle } from '@/utils/randomTitle.ts'
+
 const props = withDefaults(defineProps<{
   mode?: 'pc' | 'phone'
 }>(), {
   mode: 'pc',
 })
 
+const title = getHaJimiTitle()
+
 function navigateBiliBili() {
   window.open('https://bilibili.com', '_blank')
 }
+
+onMounted(() => {
+  autoUpdate(title)
+})
 </script>
 
 <style scoped lang="less">

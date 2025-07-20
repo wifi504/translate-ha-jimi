@@ -5,13 +5,11 @@
     :placeholder="props.placeholder"
     :rows="props.rows"
     :disabled="props.disabled"
-    @input="$emit('update:modelValue', $event.target.value)"
+    @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
   />
 </template>
 
 <script setup lang="ts">
-import { defineEmits, defineProps } from 'vue'
-
 const props = defineProps({
   rows: {
     type: Number,
@@ -45,6 +43,7 @@ const emit = defineEmits(['update:modelValue'])
   resize: none;
   box-sizing: border-box;
   transition: border-color 0.3s, box-shadow 0.3s;
+  cursor: text;
 
   &:hover {
     border-color: #999;

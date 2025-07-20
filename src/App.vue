@@ -3,11 +3,12 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
-import PC from './components/view/PC.vue'
-import Phone from './components/view/Phone.vue'
+import { onBeforeUnmount, onMounted, shallowRef } from 'vue'
+import PC from '@/components/view/PC.vue'
+import Phone from '@/components/view/Phone.vue'
+import {autoUpdate, getHaJimiTitle} from '@/utils/randomTitle.ts'
 
-const currentComponent = ref()
+const currentComponent = shallowRef()
 
 function isMobileUA(ua: string): boolean {
   return /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
@@ -30,6 +31,10 @@ function updateUA() {
 onMounted(() => {
   updateUA()
   window.addEventListener('resize', handleResize)
+  const title = getHaJimiTitle()
+  autoUpdate(title, () => {
+    document.title = `${title.value}语翻译`
+  })
 })
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)

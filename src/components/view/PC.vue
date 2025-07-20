@@ -1,103 +1,177 @@
 <template>
   <head-bar mode="pc" />
-  <div class="container">
-    <div class="text">
-      <div class="title">
-        <div>{{ isToHaJimi ? '人儿语' : '哈吉米语' }}</div>
-        <div>
-          <copy-button :size="18" color="#8a4845" :copy-text="inputText" />
+  <div class="container" :style="`--foot-height: ${footInfoHeight}px;`">
+    <div class="main">
+      <div class="text">
+        <div class="title">
+          <div>{{ isToHaJimi ? '人儿语' : `${haJimiSeed}语` }}</div>
+          <div class="title-item">
+            <copy-button :size="18" color="#8a4845" :copy-text="inputText" />
+            <icon-button :size="18" color="#8a4845" icon="paste" @click="handlePasteOnInput" />
+            <icon-button :size="18" color="#8a4845" icon="close" @click="handleClearInput" />
+          </div>
         </div>
+        <text-block v-model="inputText" class="input" :rows="15" :placeholder="placeholder" />
       </div>
-      <text-block v-model="inputText" class="input" :rows="15" :placeholder="placeholder" />
+      <icon-button :size="40" color="#8a4845" icon="switch" @click="handleSwitch" />
+      <div class="text">
+        <div class="title">
+          <div>{{ isToHaJimi ? `${haJimiSeed}语` : '人儿语' }}</div>
+          <div><copy-button :size="18" color="#8a4845" :copy-text="translated" /></div>
+        </div>
+        <text-block v-model="translated" class="input" :rows="15" :placeholder="translated ? '' : '吉米语法错误 ~ 哈气！'" disabled />
+      </div>
     </div>
-    <svg
-      t="1752860313763"
-      class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4465"
-      width="200" height="200" @click="handleSwitch"
-    >
-      <path
-        d="M922.048 593.536H102.016c-3.072 0-6.08 0-7.616 1.664h-3.008c-1.536 0-3.072 1.6-4.544 1.6-1.6 1.792-1.6 1.792-3.072 1.792-1.536 1.6-3.008 1.6-3.008 1.6-3.072 1.664-4.608 3.328-6.144 4.992-1.472 1.664-3.008 4.992-4.544 6.656 0 0 0 1.664-1.472 3.328 0 1.664-1.472 1.664-1.472 3.328s0 3.392-1.472 4.992v3.328c-1.664 3.264-1.664 9.92-0.128 14.848v3.328c1.472 1.664 1.472 3.392 1.472 4.992 1.472 1.664 1.472 1.664 1.472 3.328 1.472 1.664 1.472 3.328 1.472 3.328 1.536 3.328 3.072 4.992 4.544 6.656l261.248 285.504a37.12 37.12 0 0 0 53.12 0 42.816 42.816 0 0 0 0-58.112l-197.44-215.744h730.496c21.248 0 37.952-16.64 37.952-39.872s-16.576-41.536-37.824-41.536zM102.016 430.848h827.712c1.472 0 1.472-1.664 3.008-1.664s1.472 0 3.072-1.6c1.472 0 1.472-1.664 3.008-1.664 1.536-1.6 3.072-1.6 3.072-1.6 3.072-1.664 4.544-3.328 6.08-4.992s3.072-4.992 4.544-6.656c0 0 0-1.664 1.472-3.328 0-1.664 1.536-1.664 1.536-3.392 0-1.6 0-3.328 1.472-4.928v-3.328a25.728 25.728 0 0 0 0-14.912v-3.392c-1.472-1.664-1.472-3.328-1.472-4.928-1.536-1.664-1.536-1.664-1.536-3.328-1.472-1.664-1.472-3.328-1.472-3.328-1.472-3.392-3.072-4.992-4.544-6.656l-261.184-285.504c-7.744-8.32-16.768-11.648-25.92-11.648s-19.776 3.328-27.392 11.648a46.4 46.4 0 0 0 0 58.112l198.912 215.744H102.016c-21.248 0-38.016 18.304-38.016 39.872 0 23.232 16.768 41.472 38.016 41.472z"
-        p-id="4466" fill="#707070"
-      />
-    </svg>
-    <div class="text">
-      <div class="title">
-        <div>{{ isToHaJimi ? '哈吉米语' : '人儿语' }}</div>
-        <div><copy-button :size="18" color="#8a4845" :copy-text="translated" /></div>
-      </div>
-      <text-block v-model="translated" class="input" :rows="15" :placeholder="translated ? '' : '吉米语法错误 ~ 哈气！'" disabled />
+    <div class="ha-jimi-text">
+      <strong style="width: 80px !important;">重要提示： </strong>
+      <span style="width: calc(100% - 80px)">
+        {{ t1 }}们实在是太多了，但是它们往往不能互相听懂对方在说什么，
+        人儿语翻译出来的{{ t2 }}语虽然看起来都是一样的，
+        但是只有方言一样的{{ t3 }}才能互译！默认方言是哈吉米，你可以在下方自定义。
+      </span>
+    </div>
+    <div class="ha-jimi-text">
+      <strong style="width: 128px;">设置{{ t4 }}方言：</strong>
+      <text-block v-model="seed" :rows="1" style="width: 300px; padding: 4px;" />
     </div>
   </div>
+  <foot-info ref="footInfoRef" />
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import CopyButton from '@/components/common/CopyButton.vue'
+import FootInfo from '@/components/common/FootInfo.vue'
 import HeadBar from '@/components/common/HeadBar.vue'
+import IconButton from '@/components/common/IconButton.vue'
 import TextBlock from '@/components/common/TextBlock.vue'
+import { autoUpdate, getHaJimiTitle } from '@/utils/randomTitle.ts'
 import { getHaJimiWords, haJimiToHuman, humanToHaJimi } from '@/utils/translate.ts'
 
 const inputText = ref('')
 const isToHaJimi = ref(true)
 const seed = ref('')
+const footInfoRef = ref()
+const t1 = getHaJimiTitle()
+const t2 = getHaJimiTitle()
+const t3 = getHaJimiTitle()
+const t4 = getHaJimiTitle()
 
 const placeholder = computed(() => isToHaJimi.value ? '请输入要翻译成哈吉米语的内容...' : '请输入要翻译成人儿语的内容...')
 const translated = computed((): string => {
   if (isToHaJimi.value) {
-    return humanToHaJimi(inputText.value, getHaJimiWords(seed.value))
+    return humanToHaJimi(inputText.value, getHaJimiWords(seed.value || '哈吉米'))
   }
   else {
-    return haJimiToHuman(inputText.value, getHaJimiWords(seed.value))
+    return haJimiToHuman(inputText.value, getHaJimiWords(seed.value || '哈吉米'))
   }
+})
+
+const haJimiSeed = computed(() => {
+  if (seed.value.length <= 10) {
+    return seed.value || '哈吉米'
+  }
+  return `${seed.value.substring(0, 10)}...`
+})
+
+const footInfoHeight = computed(() => {
+  if (footInfoRef.value) {
+    return footInfoRef.value.$el.offsetHeight
+  }
+  return 0
 })
 
 function handleSwitch() {
   inputText.value = ''
   isToHaJimi.value = !isToHaJimi.value
 }
+
+async function handlePasteOnInput() {
+  inputText.value += await navigator.clipboard.readText()
+}
+
+function handleClearInput() {
+  inputText.value = ''
+}
+
+onMounted(() => {
+  autoUpdate(t1)
+  autoUpdate(t2)
+  autoUpdate(t3)
+  autoUpdate(t4)
+})
 </script>
 
 <style scoped lang="less">
 .container {
-  margin: 70px auto 0 auto;
-  width: 75%;
-  align-items: center;
-  display: flex;
-  gap: 8px;
+  margin-top: 70px;
+  height: calc(100vh - 70px - var(--foot-height));
+  overflow: auto;
+  padding-right: 10px;
 
-  .text {
-    width: 100%;
-    color: #333333;
+  // 自定义滚动条
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
 
-    .title {
-      margin: 10px 0 3px 0;
-      padding: 15px 0 5px 0;
-      font-size: 18px;
-      color: #8a4845;
-      font-weight: bold;
-      user-select: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-    .input {
-      width: 100%;
-      min-width: 300px;
+  &::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+    &:hover {
+      background-color: #555;
     }
   }
 
-  .icon {
-    width: 40px;
-    height: 40px;
+  // 火狐浏览器
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
 
-    &:hover {
-      cursor: pointer;
+  .main {
+    margin: 15px auto 0 auto;
+    width: 75%;
+    align-items: center;
+    display: flex;
+    gap: 8px;
 
-      path {
-        fill: #8a4845;
+    .text {
+      width: 100%;
+      color: #333333;
+
+      .title {
+        margin-bottom: 3px;
+        padding: 5px 0;
+        font-size: 18px;
+        color: #8a4845;
+        font-weight: bold;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        .title-item {
+          display: flex;
+          gap: 5px;
+        }
+      }
+
+      .input {
+        width: 100%;
+        min-width: 300px;
       }
     }
+  }
+
+  .ha-jimi-text {
+    width: 75%;
+    margin: 20px auto;
+    display: flex;
+    align-items: baseline;
+    color: #8a4845;
+    user-select: none;
   }
 }
 </style>
