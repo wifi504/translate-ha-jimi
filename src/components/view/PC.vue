@@ -1,3 +1,6 @@
+<!-- eslint-disable style/indent -->
+<!-- eslint-disable vue/singleline-html-element-content-newline -->
+
 <template>
   <head-bar mode="pc" />
   <div class="container" :style="`--foot-height: ${footInfoHeight}px;`">
@@ -33,6 +36,10 @@
     <div class="ha-jimi-text">
       <strong style="width: 128px;">设置{{ t4 }}方言：</strong>
       <text-block v-model="seed" :rows="1" style="width: 300px; padding: 4px;" />
+      <select-box v-model="encoding" style="width: 200px; padding: 4px">
+        <option-item value="haji_base" selected>哈基Base</option-item>
+        <option-item value="haji_bin">哈基Bin</option-item>
+      </select-box>
     </div>
     <div class="ha-jimi-text" style="color: #4d4d4d;">
       被{{ t5 }}入侵的人儿类网站会开始曼波，
@@ -44,6 +51,10 @@
 </template>
 
 <script setup lang="ts">
+/* eslint-disable style/operator-linebreak */
+/* eslint-disable style/semi */
+/* eslint-disable style/indent */
+
 import { computed, onMounted, ref } from 'vue'
 import CopyButton from '@/components/common/CopyButton.vue'
 import FootInfo from '@/components/common/FootInfo.vue'
@@ -52,10 +63,16 @@ import IconButton from '@/components/common/IconButton.vue'
 import TextBlock from '@/components/common/TextBlock.vue'
 import { autoUpdate, getHaJimiTitle } from '@/utils/randomTitle.ts'
 import { getHaJimiWords, haJimiToHuman, humanToHaJimi } from '@/utils/translate.ts'
+import { hajimi_bin_to_human, human_to_hajimi_bin } from '@/utils/translate_bin'
+import OptionItem from '../common/OptionItem.vue'
+import SelectBox from '../common/SelectBox.vue'
+
+type EncodingKind = 'haji_base' | 'haji_bin';
 
 const inputText = ref('')
 const isToHaJimi = ref(true)
 const seed = ref('')
+const encoding = ref<EncodingKind>('haji_base')
 const footInfoRef = ref()
 const t1 = getHaJimiTitle()
 const t2 = getHaJimiTitle()
@@ -67,11 +84,21 @@ const t7 = getHaJimiTitle()
 
 const placeholder = computed(() => isToHaJimi.value ? '请输入要翻译成哈吉米语的内容...' : '请输入要翻译成人儿语的内容...')
 const translated = computed((): string => {
-  if (isToHaJimi.value) {
-    return humanToHaJimi(inputText.value, getHaJimiWords(seed.value || '哈吉米'))
-  }
-  else {
-    return haJimiToHuman(inputText.value, getHaJimiWords(seed.value || '哈吉米'))
+  const default_seed = '哈吉米';
+
+  switch (encoding.value) {
+    case 'haji_base':
+      return isToHaJimi.value ?
+        humanToHaJimi(inputText.value, getHaJimiWords(seed.value || default_seed)) :
+        haJimiToHuman(inputText.value, getHaJimiWords(seed.value || default_seed));
+
+    case 'haji_bin':
+      return isToHaJimi.value ?
+        human_to_hajimi_bin(inputText.value, seed.value || default_seed).unwrap_or_else('哈基米错误') :
+        hajimi_bin_to_human(inputText.value, seed.value || default_seed).unwrap_or_else('哈基米错误');
+
+    default:
+      return 'Unknown';
   }
 })
 
