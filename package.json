@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "libsodium-wrappers": "^0.7.15",
     "vue": "^3.5.17"
   },
   "devDependencies": {
