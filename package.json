@@ -10,11 +10,14 @@
   },
   "dependencies": {
     "libsodium-wrappers": "^0.7.15",
+    "pako": "^2.1.0",
     "vue": "^3.5.17"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.17.0",
+    "@types/libsodium-wrappers": "^0.7.14",
     "@types/node": "^24.0.14",
+    "@types/pako": "^2.0.3",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
     "eslint": "^9.31.0",
