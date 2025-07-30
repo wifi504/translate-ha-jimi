@@ -1,11 +1,11 @@
 /**
- * 哈吉米语翻译核心实现代码
+ * 哈吉米语翻译核心实现代码(自定义Base64方案)
  *
  * @author WIFI连接超时
  * @version 1.0
  * Create Time 2025/7/18_21:37
  */
-import haJimiConstants from "@/utils/HaJimiConstants.ts";
+import haJimiConstants from '@/utils/HaJimiConstants.ts'
 
 function seededRandom(seed: string): () => number {
   // 把 seed 给 hash 一下
@@ -182,7 +182,9 @@ function humanToHaJimi(text: string, haJimiWords: string): string {
 
 function haJimiToHuman(text: string, haJimiWords: string): string {
   const filter = doHaJimiConstFilter(text)
-  if (filter) return filter
+  if (filter) {
+    return filter
+  }
   return decode(decodeHaJimi(text), getHaJimiWords(haJimiWords))
 }
 
@@ -192,7 +194,6 @@ function doHaJimiConstFilter(text: string): string | undefined {
   haJimiConstants.forEach((value, key) => {
     if (key === text) {
       result = value
-      return
     }
   })
   return result
