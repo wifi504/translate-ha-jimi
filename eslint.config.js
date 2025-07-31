@@ -4,7 +4,6 @@ export default antfu({
   vue: true,
   javascript: true,
   typescript: true,
-  pnpm: true,
   markdown: true,
   rules: {
     // 允许使用console.log()

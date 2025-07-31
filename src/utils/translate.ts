@@ -1,3 +1,4 @@
+import haJimiConstants from '@/utils/HaJimiConstants.ts'
 /**
  * 哈吉米语翻译核心实现代码(自定义Base64方案)
  *
@@ -5,8 +6,6 @@
  * @version 1.0
  * Create Time 2025/7/18_21:37
  */
-import haJimiConstants from '@/utils/HaJimiConstants.ts'
-
 function seededRandom(seed: string): () => number {
   // 把 seed 给 hash 一下
   let hash = 0

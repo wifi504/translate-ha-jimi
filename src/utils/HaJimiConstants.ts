@@ -1,4 +1,4 @@
-const haJimiConstants = new Map<string, string>
+const haJimiConstants = new Map<string, string>()
 
 haJimiConstants.set('哈', '哈气！')
 

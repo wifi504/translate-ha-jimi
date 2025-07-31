@@ -1,14 +1,17 @@
 {
   "name": "translate-ha-jimi",
-  "private": true,
-  "version": "0.0.1",
   "type": "module",
+  "version": "0.0.1",
+  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint . --ext .js,.ts,.vue",
+    "lint:fix": "eslint . --ext .js,.ts,.vue --fix"
   },
   "dependencies": {
+    "@stablelib/chacha": "^2.0.1",
     "libsodium-wrappers": "^0.7.15",
     "pako": "^2.1.0",
     "vue": "^3.5.17"
