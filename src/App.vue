@@ -74,9 +74,9 @@ async function test() {
   console.log('Boy计算DH私钥', boy.computeSharedKey(girlIdentity.dhPublicKey))
   console.log('Girl计算DH私钥', girl.computeSharedKey(boyIdentity.dhPublicKey))
 
-  const boyEncrypt = boy.encrypt('Hello World')
+  const boyEncrypt = boy.encryptRaw('的')
   console.log('B加密"Hello World"', boyEncrypt)
-  console.log('A解密', girl.decrypt(boyEncrypt.ciphertext, boyEncrypt.nonce))
+  console.log('A解密', girl.decryptRaw(boyEncrypt.ciphertext, boyEncrypt.nonce))
 
   console.warn('文本压缩服务测试')
 

@@ -75,31 +75,80 @@ export class SecureChatService {
   computeSharedKey(peerPublicKey: Uint8Array): Uint8Array {
     if (!this._x25519)
       throw new Error('尚未初始化：请先调用 init()')
+    // ECDH协议在椭圆曲线 Curve25519 上的实现
+    // 公共参数：曲线 E 和基点 G
+    // 双方私钥：标量 a b
+    // 双方公钥：A=aG  B=bG
+    // 协商结果：K=aB=bA=abG
     this._sharedKey = sodium.crypto_scalarmult(this._x25519.privateKey, peerPublicKey)
     return this._sharedKey
   }
 
   /**
-   * 使用共享密钥加密字符串消息（SecretBox）
-   * 返回包含随机 nonce 和密文的对象
+   * 使用共享密钥加密字符串消息（SecretBox），带校验，防篡改
+   * 返回包含随机 nonce（12位） 和密文的对象
    */
-  encrypt(message: string): { nonce: Uint8Array, ciphertext: Uint8Array } {
+  encryptAEAD(message: string): { nonce: Uint8Array, ciphertext: Uint8Array } {
     if (!this._sharedKey)
       throw new Error('共享密钥未建立：请先调用 computeSharedKey()')
-    const nonce = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES)
+    // AEAD：带有关联数据的身份验证加密（Authenticated Encryption with Associated Data）
+    // ChaCha20：流加密替代AES提高效率
+    // Poly1305：消息认证码MAC，保证密文是没有被篡改的
+    // ietf：对上面算法选择的规范，HTTP/2、TLS 1.3、QUIC啥的都用的这个，用就完了
+    // 安全了，但是体积太长了
+    // 这里的随机nonce目前考虑到密文长度问题，用的12位，其实安全程度肯定够用了
+    const nonce = sodium.randombytes_buf(sodium.crypto_aead_chacha20poly1305_ietf_NPUBBYTES)
     const plaintext = sodium.from_string(message)
-    const ciphertext = sodium.crypto_secretbox_easy(plaintext, nonce, this._sharedKey)
+    const ciphertext = sodium.crypto_aead_chacha20poly1305_ietf_encrypt(
+      plaintext,
+      null,
+      null,
+      nonce,
+      this._sharedKey,
+    )
     return { nonce, ciphertext }
   }
 
   /**
-   * 使用共享密钥解密密文
+   * 使用共享密钥解密密文（校验过的那个密文，不是普通密文）
    * 返回解密后的字符串消息
    */
-  decrypt(ciphertext: Uint8Array, nonce: Uint8Array): string {
+  decryptAEAD(ciphertext: Uint8Array, nonce: Uint8Array): string {
     if (!this._sharedKey)
       throw new Error('共享密钥未建立：请先调用 computeSharedKey()')
-    const plaintext = sodium.crypto_secretbox_open_easy(ciphertext, nonce, this._sharedKey)
+    const plaintext = sodium.crypto_aead_chacha20poly1305_ietf_decrypt(
+      null,
+      ciphertext,
+      null,
+      nonce,
+      this._sharedKey,
+    )
+    return sodium.to_string(plaintext)
+  }
+
+  /**
+   * 使用共享密钥加密字符串消息，直接 ChaCha20 流式加密
+   * 无完整性校验、也不带盐
+   */
+  encryptRaw(message: string): { nonce: Uint8Array, ciphertext: Uint8Array } {
+    if (!this._sharedKey)
+      throw new Error('共享密钥未建立：请先调用 computeSharedKey()')
+
+    // const nonce = sodium.randombytes_buf(sodium.crypto_stream_NONCEBYTES) // 8字节 nonce
+    // const plaintext = sodium.from_string(message)
+    // const ciphertext = sodium.crypto_stream_chacha20_xor(plaintext, nonce, this._sharedKey)
+    return { nonce, ciphertext }
+  }
+
+  /**
+   * 使用共享密钥解密密文（普通密文）
+   * 返回解密后的字符串消息
+   */
+  decryptRaw(ciphertext: Uint8Array, nonce: Uint8Array): string {
+    if (!this._sharedKey)
+      throw new Error('共享密钥未建立：请先调用 computeSharedKey()')
+
+    // const plaintext = sodium.crypto_stream_chacha20_xor(ciphertext, nonce, this._sharedKey)
     return sodium.to_string(plaintext)
   }
 
