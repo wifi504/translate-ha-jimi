@@ -1,3 +1,5 @@
+import { streamXOR } from '@stablelib/chacha'
+import sodium from 'libsodium-wrappers'
 /**
  * 哈基密语端到端加密通信服务
  *
@@ -5,8 +7,6 @@
  * @version 1.0
  * Create Time 2025/7/29_00:55
  */
-import sodium from 'libsodium-wrappers'
-
 export class SecureChatService {
   // Ed25519 签名密钥对：身份认证和签名
   private _ed25519?: sodium.KeyPair
@@ -20,6 +20,9 @@ export class SecureChatService {
   // libsodium 初始化
   private _isReady = false
 
+  // 写死的nonce，只在追求极限压缩的时候用
+  private readonly _fixedNonce = new Uint8Array(8).fill(0)
+
   constructor() {
   }
 
@@ -28,8 +31,9 @@ export class SecureChatService {
    * 这个方法必须手动且仅需要调用一次
    */
   async init() {
-    if (this._isReady)
+    if (this._isReady) {
       return
+    }
     // 等待 libsodium 加载完成（WebAssembly）
     await sodium.ready
     // 身份密钥
@@ -43,8 +47,9 @@ export class SecureChatService {
    * 获取 Ed25519 公钥（用于身份认证对外公布）
    */
   get ed25519PublicKey(): Uint8Array {
-    if (!this._ed25519)
+    if (!this._ed25519) {
       throw new Error('尚未初始化：请先调用 init()')
+    }
     return this._ed25519.publicKey
   }
 
@@ -52,8 +57,9 @@ export class SecureChatService {
    * 获取 X25519 公钥（用于共享密钥协商）
    */
   get x25519PublicKey(): Uint8Array {
-    if (!this._x25519)
+    if (!this._x25519) {
       throw new Error('尚未初始化：请先调用 init()')
+    }
     return this._x25519.publicKey
   }
 
@@ -62,8 +68,9 @@ export class SecureChatService {
    * 用于发送给对方，确保公钥真实性（防止中间人攻击）
    */
   signDHPublicKey(): Uint8Array {
-    if (!this._ed25519 || !this._x25519)
+    if (!this._ed25519 || !this._x25519) {
       throw new Error('尚未初始化：请先调用 init()')
+    }
     return sodium.crypto_sign_detached(this._x25519.publicKey, this._ed25519.privateKey)
   }
 
@@ -73,8 +80,9 @@ export class SecureChatService {
    * 计算结果存储在实例中供后续加解密使用
    */
   computeSharedKey(peerPublicKey: Uint8Array): Uint8Array {
-    if (!this._x25519)
+    if (!this._x25519) {
       throw new Error('尚未初始化：请先调用 init()')
+    }
     // ECDH协议在椭圆曲线 Curve25519 上的实现
     // 公共参数：曲线 E 和基点 G
     // 双方私钥：标量 a b
@@ -89,8 +97,9 @@ export class SecureChatService {
    * 返回包含随机 nonce（12位） 和密文的对象
    */
   encryptAEAD(message: string): { nonce: Uint8Array, ciphertext: Uint8Array } {
-    if (!this._sharedKey)
+    if (!this._sharedKey) {
       throw new Error('共享密钥未建立：请先调用 computeSharedKey()')
+    }
     // AEAD：带有关联数据的身份验证加密（Authenticated Encryption with Associated Data）
     // ChaCha20：流加密替代AES提高效率
     // Poly1305：消息认证码MAC，保证密文是没有被篡改的
@@ -114,8 +123,9 @@ export class SecureChatService {
    * 返回解密后的字符串消息
    */
   decryptAEAD(ciphertext: Uint8Array, nonce: Uint8Array): string {
-    if (!this._sharedKey)
+    if (!this._sharedKey) {
       throw new Error('共享密钥未建立：请先调用 computeSharedKey()')
+    }
     const plaintext = sodium.crypto_aead_chacha20poly1305_ietf_decrypt(
       null,
       ciphertext,
@@ -128,28 +138,56 @@ export class SecureChatService {
 
   /**
    * 使用共享密钥加密字符串消息，直接 ChaCha20 流式加密
-   * 无完整性校验、也不带盐
+   * 无完整性校验、带盐（8位nonce）
    */
   encryptRaw(message: string): { nonce: Uint8Array, ciphertext: Uint8Array } {
-    if (!this._sharedKey)
+    if (!this._sharedKey) {
       throw new Error('共享密钥未建立：请先调用 computeSharedKey()')
+    }
+    const nonce = sodium.randombytes_buf(8)
+    const plaintext = sodium.from_string(message)
+    const dst = new Uint8Array(plaintext.length)
 
-    // const nonce = sodium.randombytes_buf(sodium.crypto_stream_NONCEBYTES) // 8字节 nonce
-    // const plaintext = sodium.from_string(message)
-    // const ciphertext = sodium.crypto_stream_chacha20_xor(plaintext, nonce, this._sharedKey)
+    const ciphertext = streamXOR(this._sharedKey, nonce, plaintext, dst)
     return { nonce, ciphertext }
   }
 
   /**
-   * 使用共享密钥解密密文（普通密文）
+   * 使用共享密钥解密密文（普通密文带盐）
    * 返回解密后的字符串消息
    */
   decryptRaw(ciphertext: Uint8Array, nonce: Uint8Array): string {
-    if (!this._sharedKey)
+    if (!this._sharedKey) {
       throw new Error('共享密钥未建立：请先调用 computeSharedKey()')
-
-    // const plaintext = sodium.crypto_stream_chacha20_xor(ciphertext, nonce, this._sharedKey)
+    }
+    const dst = new Uint8Array(ciphertext.length)
+    // stream cipher 对称加密 加密两次可还原
+    const plaintext = streamXOR(this._sharedKey, nonce, ciphertext, dst)
     return sodium.to_string(plaintext)
+  }
+
+  /**
+   * 固定 nonce 的 ChaCha20 加密（无认证）
+   */
+  encryptRawFixedNonce(message: string): Uint8Array {
+    if (!this._sharedKey) {
+      throw new Error('共享密钥未建立：请先调用 computeSharedKey()')
+    }
+    const plaintext = new TextEncoder().encode(message)
+    const ciphertext = new Uint8Array(plaintext.length)
+    return streamXOR(this._sharedKey, this._fixedNonce, plaintext, ciphertext)
+  }
+
+  /**
+   * 固定 nonce 的 ChaCha20 解密（无认证）
+   */
+  decryptRawFixedNonce(ciphertext: Uint8Array): string {
+    if (!this._sharedKey) {
+      throw new Error('共享密钥未建立：请先调用 computeSharedKey()')
+    }
+    const plaintext = new Uint8Array(ciphertext.length)
+    const decrypted = streamXOR(this._sharedKey, this._fixedNonce, ciphertext, plaintext)
+    return new TextDecoder().decode(decrypted)
   }
 
   /**
@@ -157,8 +195,9 @@ export class SecureChatService {
    * 包含身份公钥，DH 公钥和对应签名
    */
   exportPublicIdentity() {
-    if (!this._ed25519 || !this._x25519)
+    if (!this._ed25519 || !this._x25519) {
       throw new Error('尚未初始化：请先调用 init()')
+    }
     return {
       ed25519PublicKey: this._ed25519.publicKey,
       dhPublicKey: this._x25519.publicKey,

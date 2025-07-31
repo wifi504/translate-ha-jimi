@@ -1,3 +1,4 @@
+import pako from 'pako'
 /**
  * 哈基密语文本压缩服务
  *
@@ -5,28 +6,24 @@
  * @version 1.0
  * Create Time 2025/7/29_00:55
  */
-import pako from 'pako'
-
 export class TextCompressService {
   /**
-   * 压缩字符串为 Uint8Array
-   * @param text 要压缩的文本
-   * @returns Uint8Array 压缩结果
+   * 压缩输入（支持 string 或 Uint8Array）
+   *  - string 会转成 Uint8Array 再压缩
+   *  - Uint8Array 会直接压缩
    */
-  static a(text: string): Uint8Array {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(text)
+  static a(input: string | Uint8Array): Uint8Array {
+    const data = typeof input === 'string' ? new TextEncoder().encode(input) : input
     return pako.deflate(data)
   }
 
   /**
-   * 解压 Uint8Array 为字符串
-   * @param data 加密前压缩得到的 Uint8Array
-   * @returns string 解压后的原始字符串
+   * 解压输入（支持输出 string 或 Uint8Array）
+   * - 默认返回解压后的字符串
+   * - 若传入 raw=true，则返回 Uint8Array
    */
-  static x(data: Uint8Array): string {
+  static x(data: Uint8Array, raw?: boolean): string | Uint8Array {
     const inflated = pako.inflate(data)
-    const decoder = new TextDecoder()
-    return decoder.decode(inflated)
+    return raw ? inflated : new TextDecoder().decode(inflated)
   }
 }
