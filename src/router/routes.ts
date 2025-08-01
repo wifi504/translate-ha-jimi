@@ -1,38 +1,12 @@
 import type { RouteRecordRaw } from 'vue-router'
-
+/**
+ * Vue Router 路由配置自动生成(v1.0)
+ * @author WIFI连接超时
+ */
 export default [
   {
     path: '/',
     component: () => import('@/views/Index.vue'),
-  },
-  {
-    path: '/child1',
-    component: () => import('@/views/child1/Index.vue'),
-    children: [
-      {
-        path: 'test1',
-        component: () => import('@/views/child1/test1/Index.vue'),
-      },
-      {
-        path: 'child2',
-        children: [
-          {
-            path: 'child3',
-            component: () => import('@/views/child1/child2/child3/Index.vue'),
-          },
-          {
-            path: 'test2',
-            component: () => import('@/views/child1/child2/test2/Index.vue'),
-            children: [
-              {
-                path: 'login',
-                component: () => import('@/views/child1/child2/test2/login/Index.vue'),
-              },
-            ],
-          },
-        ],
-      },
-    ],
   },
   {
     path: '/pc',

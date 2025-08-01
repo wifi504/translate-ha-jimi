@@ -1,9 +1,3 @@
-export default [
-  {
-    path: '/',
-    name: 'home',
-    meta: {
-      title: '这个是首页',
-    },
-  },
-]
+import type { RouteRecordRaw } from 'vue-router'
+
+export default [] as RouteRecordRaw[]

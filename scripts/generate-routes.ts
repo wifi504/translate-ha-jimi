@@ -31,7 +31,7 @@ interface RouteNode {
 // 扁平化 options.ts
 interface FlatRouteOption {
   pathSegments: string[]
-  extraProps: Record<string, any>
+  extraProps: types.namedTypes.ObjectExpression
   isTopLevel: boolean
 }
 
@@ -43,35 +43,6 @@ const parser = {
       plugins: ['typescript'],
     })
   },
-}
-
-// 转换TS代码文件成AST
-function parseToAST(code: string) {
-  return parse(code, { parser })
-}
-
-// 导出AST里面的export表达式内容
-function extractExportedRouteArrayExpression(ast: types.namedTypes.File): types.namedTypes.ArrayExpression {
-  const exportNode = ast.program.body.find(
-    node => node.type === 'ExportDefaultDeclaration',
-  ) as types.namedTypes.ExportDefaultDeclaration | undefined
-
-  if (!exportNode) {
-    throw new Error('未找到 export default 声明')
-  }
-
-  if (
-    exportNode.declaration.type === 'TSAsExpression'
-    && exportNode.declaration.expression.type === 'ArrayExpression'
-  ) {
-    return exportNode.declaration.expression
-  }
-
-  if (exportNode.declaration.type === 'ArrayExpression') {
-    return exportNode.declaration
-  }
-
-  throw new Error('export default 不是数组表达式')
 }
 
 // 大驼峰变短线（AaaBbb -> aaa-bbb）
@@ -167,10 +138,9 @@ function buildRoutesFromTree(tree: RouteNode[], isChild = false): types.namedTyp
   })
 }
 
-// 解析 src/router/options.ts 中的 export default 路由配置为扁平化数组
+// 解析 src/router/options.ts 中的 export default 路由配置为扁平化数组，结果可能为 [] 代表文件不存在或者找不到默认导出
 function parseOptionsFile(optionsPath: string): FlatRouteOption[] {
   if (!fs.existsSync(optionsPath)) {
-    console.log('[routes-gen] 未发现 options.ts，跳过注入自定义配置')
     return []
   }
 
@@ -181,23 +151,37 @@ function parseOptionsFile(optionsPath: string): FlatRouteOption[] {
     n => n.type === 'ExportDefaultDeclaration',
   ) as types.namedTypes.ExportDefaultDeclaration | undefined
 
-  if (!exportNode || exportNode.declaration.type !== 'ArrayExpression') {
-    console.log('[routes-gen] options.ts 中未找到有效的默认导出数组，跳过注入')
+  if (!exportNode) {
+    return []
+  }
+
+  // 兼容 TSAsExpression
+  let rootArray: types.namedTypes.ArrayExpression | null = null
+  if (exportNode.declaration.type === 'ArrayExpression') {
+    rootArray = exportNode.declaration
+  }
+  else if (
+    exportNode.declaration.type === 'TSAsExpression'
+    && exportNode.declaration.expression.type === 'ArrayExpression'
+  ) {
+    rootArray = exportNode.declaration.expression
+  }
+
+  if (!rootArray) {
     return []
   }
 
   const result: FlatRouteOption[] = []
 
-  // 递归展开数组为扁平化结构
   function walk(
     nodes: types.namedTypes.ArrayExpression,
     parentSegments: string[] = [],
     isTopLevel = true,
   ) {
     for (const el of nodes.elements) {
-      if (!el || el.type !== 'ObjectExpression')
+      if (!el || el.type !== 'ObjectExpression') {
         continue
-
+      }
       const pathProp = el.properties.find(
         (p): p is types.namedTypes.ObjectProperty =>
           p.type === 'ObjectProperty'
@@ -205,34 +189,35 @@ function parseOptionsFile(optionsPath: string): FlatRouteOption[] {
           && p.key.name === 'path'
           && p.value.type === 'StringLiteral',
       )
-
-      if (!pathProp)
-        continue
-
-      if (pathProp.value.type !== 'StringLiteral') {
+      if (!pathProp) {
         continue
       }
-      const pathSegment = pathProp.value.value
+      const pathSegment = (pathProp.value as types.namedTypes.StringLiteral).value
       const fullPathSegments = [...parentSegments, pathSegment]
 
-      // 提取除 path 和 children 之外的字段
-      const extraProps = types.builders.objectExpression(
-        el.properties.filter(
-          p =>
-            p.type === 'ObjectProperty'
-            && p.key.type === 'Identifier'
-            && p.key.name !== 'path'
-            && p.key.name !== 'children',
-        ),
-      )
+      // 保留 AST 属性节点，构建新的 ObjectExpression
+      const extraProps: types.namedTypes.ObjectProperty[] = []
+
+      for (const prop of el.properties) {
+        if (
+          prop.type === 'ObjectProperty'
+          && prop.key.type === 'Identifier'
+          && prop.key.name !== 'path'
+          && prop.key.name !== 'children'
+        ) {
+          extraProps.push(prop)
+        }
+      }
+
+      const extraObjectExpr = types.builders.objectExpression(extraProps)
 
       result.push({
         pathSegments: fullPathSegments,
-        extraProps,
+        extraProps: extraObjectExpr,
         isTopLevel,
       })
 
-      // 处理 children 递归
+      // 递归处理 children
       const childrenProp = el.properties.find(
         (p): p is types.namedTypes.ObjectProperty =>
           p.type === 'ObjectProperty'
@@ -247,7 +232,7 @@ function parseOptionsFile(optionsPath: string): FlatRouteOption[] {
     }
   }
 
-  walk(exportNode.declaration)
+  walk(rootArray)
   return result
 }
 
@@ -274,8 +259,9 @@ function findObjectInArrayASTByPath(
         ),
     )
 
-    if (!found)
+    if (!found) {
       return undefined
+    }
 
     if (i === pathSegments.length - 1) {
       return found
@@ -289,8 +275,9 @@ function findObjectInArrayASTByPath(
         && p.value.type === 'ArrayExpression',
     )
 
-    if (!childrenProp)
+    if (!childrenProp) {
       return undefined
+    }
 
     const childrenArray = childrenProp.value
     if (childrenArray.type !== 'ArrayExpression') {
@@ -322,8 +309,6 @@ function mergePropsIntoObject(
     if (
       prop.type === 'ObjectProperty'
       && prop.key.type === 'Identifier'
-      && prop.key.name !== 'path'
-      && prop.key.name !== 'component'
       && !existingKeys.has(prop.key.name)
     ) {
       target.properties.push(prop)
@@ -340,44 +325,29 @@ function applyRouteOptionsToAST(
     const segments = opt.pathSegments
     const last = segments[segments.length - 1]
     const parentSegments = segments.slice(0, -1)
-
     const target = findObjectInArrayASTByPath(segments, rootArrayAST)
 
-    function toObjectExpression(obj: Record<string, any>): types.namedTypes.ObjectExpression {
-      const props = Object.entries(obj).map(([key, val]) =>
-        types.builders.objectProperty(
-          types.builders.identifier(key),
-          typeof val === 'string'
-            ? types.builders.stringLiteral(val)
-            : typeof val === 'number'
-              ? types.builders.numericLiteral(val)
-              : typeof val === 'boolean'
-                ? types.builders.booleanLiteral(val)
-                : types.builders.nullLiteral(),
-        ),
-      )
-      return types.builders.objectExpression(props)
-    }
-
     if (target) {
-      mergePropsIntoObject(target, toObjectExpression(opt.extraProps))
+      // 直接合并
+      mergePropsIntoObject(target, opt.extraProps)
     }
     else if (opt.isTopLevel) {
+      // 顶层追加
       const newNode = createRouteObjectExpression(last, opt.extraProps)
       rootArrayAST.elements.unshift(newNode)
     }
     else {
+      // 子节点挂入 parent.children
       const parentNode = findObjectInArrayASTByPath(parentSegments, rootArrayAST)
-      if (!parentNode)
+      if (!parentNode) {
         continue
-
+      }
       let childrenProp = parentNode.properties.find(
         (p): p is types.namedTypes.ObjectProperty =>
           p.type === 'ObjectProperty'
           && p.key.type === 'Identifier'
           && p.key.name === 'children',
       )
-
       if (!childrenProp) {
         childrenProp = types.builders.objectProperty(
           types.builders.identifier('children'),
@@ -386,11 +356,11 @@ function applyRouteOptionsToAST(
         parentNode.properties.push(childrenProp)
       }
 
-      if (childrenProp.value.type !== 'ArrayExpression')
+      if (childrenProp.value.type !== 'ArrayExpression') {
         continue
+      }
 
       const newChild = createRouteObjectExpression(last, opt.extraProps)
-
       childrenProp.value.elements.unshift(newChild)
     }
   }
@@ -399,7 +369,7 @@ function applyRouteOptionsToAST(
 // 处理顶层和子路由新增节点时，生成 AST 节点的辅助函数：生成路由对象节点
 function createRouteObjectExpression(
   path: string,
-  extraProps?: Record<string, any>,
+  extraProps?: types.namedTypes.ObjectExpression,
 ): types.namedTypes.ObjectExpression {
   const props: types.namedTypes.ObjectProperty[] = [
     types.builders.objectProperty(
@@ -409,23 +379,15 @@ function createRouteObjectExpression(
   ]
 
   if (extraProps) {
-    for (const [key, val] of Object.entries(extraProps)) {
-      if (key === 'path' || key === 'component')
-        continue
-      let valueNode: types.namedTypes.Expression
-      if (typeof val === 'string') {
-        valueNode = types.builders.stringLiteral(val)
+    // 这里拆解 extraProps.properties，把属性逐个加入
+    for (const prop of extraProps.properties) {
+      if (
+        prop.type === 'ObjectProperty'
+        && prop.key.type === 'Identifier'
+        && prop.key.name !== 'path'
+      ) {
+        props.push(prop)
       }
-      else if (typeof val === 'number') {
-        valueNode = types.builders.numericLiteral(val)
-      }
-      else if (typeof val === 'boolean') {
-        valueNode = types.builders.booleanLiteral(val)
-      }
-      else {
-        valueNode = types.builders.nullLiteral()
-      }
-      props.push(types.builders.objectProperty(types.builders.identifier(key), valueNode as any))
     }
   }
 
@@ -442,43 +404,60 @@ async function formatWithESLint(code: string, filePath = 'src/router/routes.ts')
 
 // 主方法
 async function main() {
+  let count = 1
+  function getTaskProgress(): string {
+    const total = 7
+    return `[${count++}/${total}] `
+  }
   console.log('Vue Router 路由配置生成器(v1.0) Powered By WIFI连接超时')
 
+  // 1. 解析目录结构获取入口组件
+  console.log(`${getTaskProgress()}从"src/views/"解析视图入口组件`)
   const files = await getIndexVueFiles()
+  console.log(`${files.map(f => ` - ${f}`).join('\n')}`)
+  // 2. 构建目录树
+  console.log(`${getTaskProgress()}构建目录树`)
   const tree = buildRouteTree(files)
-  const routeASTArray = buildRoutesFromTree(tree)
-
-  // 先生成基础 routes AST
-  const ast = parse(`export default []`, { parser })
-  ast.program.body[0] = types.builders.exportDefaultDeclaration(
+  // 3. 构建基础路由 AST
+  console.log(`${getTaskProgress()}基于目录树生成 routes 的 AST`)
+  const routeArrayAST = types.builders.arrayExpression(buildRoutesFromTree(tree))
+  const fileAST = parse('', { parser })
+  fileAST.program.body[0] = types.builders.exportDefaultDeclaration(
     types.builders.tsAsExpression(
-      types.builders.arrayExpression(routeASTArray),
-      types.builders.tsTypeReference(types.builders.identifier('RouteRecordRaw')),
+      routeArrayAST,
+      types.builders.tsTypeReference(types.builders.identifier('RouteRecordRaw[]')),
     ),
   )
-
-  // 尝试读取 options.ts 并合并
-  let options: FlatRouteOption[] = []
-  const optionsPath = path.resolve(process.cwd(), './src/router/options.ts')
-  if (fs.existsSync(optionsPath)) {
-    console.log('检测到 options.ts，开始读取自定义路由配置...')
-    options = parseOptionsFile(optionsPath) // 你之前写的解析函数
-    applyRouteOptionsToAST(ast.program.body[0].expression.expression, options) // 传入 routes 数组 AST 节点
+  // 4. 合并路由增强配置"/router/options.ts"
+  console.log(`${getTaskProgress()}合并路由增强配置"/router/options.ts"`)
+  const routeOptions = parseOptionsFile(path.resolve(process.cwd(), './src/router/options.ts'))
+  if (routeOptions.length > 0) {
+    console.log(` - 成功解析 ${routeOptions.length} 条配置`)
+    applyRouteOptionsToAST(routeArrayAST, routeOptions)
+    console.log(` - 合并完成`)
   }
   else {
-    console.log('未检测到 options.ts，跳过自定义配置合并')
+    console.log(' - 未发现可合并的自定义配置，或 options.ts 文件为空，跳过此步骤')
   }
-  // 5. 格式化输出并写入文件
-  console.log('[5/7] 编译抽象语法树')
-  let formattedCode = print(ast).code
-  console.log('[6/7] 格式化代码')
-  formattedCode = formattedCode
+  // 5. 编译抽象语法树生成最终 routes
+  console.log(`${getTaskProgress()}编译抽象语法树生成最终 routes`)
+  const importStatement = `import type { RouteRecordRaw } from 'vue-router'`
+  const infoText = `/**
+ * Vue Router 路由配置自动生成(v1.0)
+ * @author WIFI连接超时
+ */`
+  let generatedCode = print(fileAST).code
+  generatedCode = `${importStatement}\n${infoText}\n${generatedCode}`
+  // 6. 代码格式化 && ESLint --fix
+  console.log(`${getTaskProgress()}代码格式化 && ESLint --fix"`)
+  generatedCode = generatedCode
     .replace(/(?:\n\s*){2,}/g, '\n') // 多个空行变 1 行
     .replace(/\[\{/g, '[\n{') // 对象换行
-  console.log('[7/7] ESLint --fix')
-  formattedCode = await formatWithESLint(formattedCode)
-  fs.writeFileSync(outputPath, formattedCode)
-  console.warn('Done!')
+  generatedCode = await formatWithESLint(generatedCode)
+  // 写入文件
+  console.log(`${getTaskProgress()}写入文件`)
+  fs.writeFileSync(outputPath, generatedCode)
+  console.log('Done!')
 }
 
 main().catch(console.error)
