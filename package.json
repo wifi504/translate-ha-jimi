@@ -8,23 +8,30 @@
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.ts,.vue",
-    "lint:fix": "eslint . --ext .js,.ts,.vue --fix"
+    "lint:fix": "eslint . --ext .js,.ts,.vue --fix",
+    "generate-vue-routes": "npx tsx scripts/generate-routes.ts"
   },
   "dependencies": {
     "@stablelib/chacha": "^2.0.1",
     "libsodium-wrappers": "^0.7.15",
     "pako": "^2.1.0",
-    "vue": "^3.5.17"
+    "vue": "^3.5.17",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.17.0",
+    "@babel/parser": "^7.28.0",
     "@types/libsodium-wrappers": "^0.7.14",
     "@types/node": "^24.0.14",
     "@types/pako": "^2.0.3",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
+    "chokidar": "^4.0.3",
     "eslint": "^9.31.0",
+    "fast-glob": "^3.3.3",
     "less": "^4.4.0",
+    "recast": "^0.23.11",
+    "tsx": "^4.20.3",
     "typescript": "~5.8.3",
     "vite": "^7.0.4",
     "vue-tsc": "^2.2.12"

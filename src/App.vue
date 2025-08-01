@@ -1,47 +1,51 @@
 <template>
-  <component :is="currentComponent" />
+  <router-view />
+<!--  <component :is="currentComponent" />-->
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, shallowRef } from 'vue'
-import PC from '@/components/view/PC.vue'
-import Phone from '@/components/view/Phone.vue'
+import { computed, onMounted, ref } from 'vue'
 import { SecureChatService } from '@/service/SecureChatService.ts'
 import { TextCompressService } from '@/service/TextCompressService.ts'
 import { HaJimiEncodeUtil } from '@/utils/HaJimiEncodeUtil.ts'
 import { autoUpdate, getHaJimiTitle } from '@/utils/randomTitle.ts'
+import Base64PC from '@/views/pc/Base64PC.vue'
+import Base64Phone from '@/views/phone/Base64Phone.vue'
 
-const currentComponent = shallowRef()
+const currentPage = ref<'base64_pc' | 'base64_phone' | 'chacha20_pc' | 'chacha20_phone'>('base64_pc')
 
 function isMobileUA(ua: string): boolean {
   return /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
 }
 
-function handleResize() {
-  updateUA()
-}
-
-function updateUA() {
+function updatePage() {
   const ua = navigator.userAgent
   if (isMobileUA(ua)) {
-    currentComponent.value = Phone
+    currentPage.value = 'base64_phone'
   }
   else {
-    currentComponent.value = PC
+    currentPage.value = 'base64_pc'
   }
 }
 
+const currentComponent = computed(() => {
+  switch (currentPage.value) {
+    case 'base64_pc':
+      return Base64PC
+    case 'base64_phone':
+      return Base64Phone
+    default:
+      return null
+  }
+})
+
 onMounted(() => {
-  updateUA()
-  window.addEventListener('resize', handleResize)
+  updatePage()
   const title = getHaJimiTitle()
   autoUpdate(title, () => {
     document.title = `${title.value}语翻译`
   })
   test()
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
 })
 
 async function test() {

@@ -64,8 +64,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import CopyButton from '@/components/common/CopyButton.vue'
-import FootInfo from '@/components/common/FootInfo.vue'
-import HeadBar from '@/components/common/HeadBar.vue'
+import FootInfo from '@/views/FootInfo.vue'
+import HeadBar from '@/views/HeadBar.vue'
 import IconButton from '@/components/common/IconButton.vue'
 import TextBlock from '@/components/common/TextBlock.vue'
 import { autoUpdate, getHaJimiTitle } from '@/utils/randomTitle.ts'
