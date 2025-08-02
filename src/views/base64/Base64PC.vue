@@ -1,6 +1,9 @@
 <template>
   <head-bar mode="pc" />
   <div class="container" :style="`--foot-height: ${footInfoHeight}px;`">
+    <div class="a-link-text">
+      【哈基密语2.0】已经上线，<span class="btn" @click="handleGoNew"> 立即前往 </span>体验新版！
+    </div>
     <div class="main">
       <div class="text">
         <div class="title">
@@ -45,13 +48,14 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import CopyButton from '@/components/common/CopyButton.vue'
-import FootInfo from '@/views/FootInfo.vue'
-import HeadBar from '@/views/HeadBar.vue'
 import IconButton from '@/components/common/IconButton.vue'
 import TextBlock from '@/components/common/TextBlock.vue'
 import { autoUpdate, getHaJimiTitle } from '@/utils/randomTitle.ts'
 import { getHaJimiWords, haJimiToHuman, humanToHaJimi } from '@/utils/translate.ts'
+import FootInfo from '@/views/base64/components/FootInfo.vue'
+import HeadBar from '@/views/base64/components/HeadBar.vue'
 
 const inputText = ref('')
 const isToHaJimi = ref(true)
@@ -64,6 +68,7 @@ const t4 = getHaJimiTitle()
 const t5 = getHaJimiTitle()
 const t6 = getHaJimiTitle()
 const t7 = getHaJimiTitle()
+const router = useRouter()
 
 const placeholder = computed(() => isToHaJimi.value ? '请输入要翻译成哈吉米语的内容...' : '请输入要翻译成人儿语的内容...')
 const translated = computed((): string => {
@@ -100,6 +105,10 @@ async function handlePasteOnInput() {
 
 function handleClearInput() {
   inputText.value = ''
+}
+
+function handleGoNew() {
+  router.push('/')
 }
 
 onMounted(() => {
@@ -183,6 +192,28 @@ onMounted(() => {
     align-items: baseline;
     color: #8a4845;
     user-select: none;
+  }
+
+  .a-link-text {
+    margin: 15px auto 0 auto;
+    width: 75%;
+    user-select: none;
+    align-items: center;
+    color: #8a4845;
+
+    .btn {
+      cursor: pointer;
+      text-decoration: underline;
+      font-weight: bold;
+
+      &:hover {
+        color: #e1817c;
+      }
+
+      &:active {
+        color: #542220;
+      }
+    }
   }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="top-bar" :class="props.mode">
-    <img class="avatar" src="../assets/image/hjm.png" alt="LOGO">
+    <img class="avatar" src="../../../assets/image/hjm.png" alt="LOGO">
     <span class="title">{{ title }}语翻译</span>
     <span v-if="props.mode === 'pc'" class="sub-title" @click="navigateBiliBili">→<span>哈</span>观看<span>吉米</span>演示视频，曼波~</span>
   </div>

@@ -9,11 +9,7 @@ export default [
     component: () => import('@/views/Index.vue'),
   },
   {
-    path: '/pc',
-    component: () => import('@/views/pc/Index.vue'),
-  },
-  {
-    path: '/phone',
-    component: () => import('@/views/phone/Index.vue'),
+    path: '/base64',
+    component: () => import('@/views/base64/Index.vue'),
   },
 ] as RouteRecordRaw[]
