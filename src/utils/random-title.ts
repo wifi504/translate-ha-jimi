@@ -16,14 +16,16 @@ const arr: string[] = [
   '蛤集咪',
 ]
 
-function autoUpdate(titleRef: Ref<string>, updateCallback?: () => void): void {
+function autoUpdate(titleRef: Ref<string>, updateCallback?: () => void, runFlag?: Ref<boolean>): void {
   setTimeout(() => {
-    const idx = Math.floor(Math.random() * arr.length)
-    titleRef.value = arr[idx]
-    if (updateCallback) {
-      updateCallback()
+    if (!runFlag || runFlag.value) {
+      const idx = Math.floor(Math.random() * arr.length)
+      titleRef.value = arr[idx]
+      if (updateCallback) {
+        updateCallback()
+      }
+      autoUpdate(titleRef, updateCallback, runFlag)
     }
-    autoUpdate(titleRef, updateCallback)
   }, Math.floor(2000 + Math.random() * 4000))
 }
 

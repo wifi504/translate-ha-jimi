@@ -7,27 +7,18 @@
           preserveAspectRatio="xMidYMid" width="200" height="200"
           style="shape-rendering: auto; display: block; background: rgb(255, 255, 255);"
         >
-          <g>
+          <g class="rotate-group-outer">
             <circle
               stroke-linecap="round" fill="none" stroke-dasharray="50.26548245743669 50.26548245743669"
               stroke="#af635f" stroke-width="8" r="32" cy="50" cx="50"
-            >
-              <animateTransform
-                values="0 50 50;360 50 50" keyTimes="0;1" repeatCount="indefinite" dur="1s" type="rotate"
-                attributeName="transform"
-              />
-            </circle>
+            />
+          </g>
+          <g class="rotate-group-inner">
             <circle
               stroke-linecap="round" fill="none" stroke-dashoffset="36.12831551628262"
               stroke-dasharray="36.12831551628262 36.12831551628262" stroke="#dcaf6a" stroke-width="8" r="23"
               cy="50" cx="50"
-            >
-              <animateTransform
-                values="0 50 50;-360 50 50" keyTimes="0;1" repeatCount="indefinite" dur="1s" type="rotate"
-                attributeName="transform"
-              />
-            </circle>
-            <g />
+            />
           </g>
         </svg>
       </div>
@@ -40,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { useLoadingStore } from '@/stores/loading'
+import { useLoadingStore } from '@/stores/loading.ts'
 
 const loadingStore = useLoadingStore()
 </script>
@@ -78,6 +69,7 @@ const loadingStore = useLoadingStore()
   }
 }
 
+.full-loading-from-in,
 .full-loading-leave-to {
   opacity: 0;
 
@@ -88,5 +80,21 @@ const loadingStore = useLoadingStore()
   .text {
     transform: scale(0);
   }
+}
+
+.rotate-group-outer {
+  animation: rotate-clockwise 1s linear infinite;
+}
+.rotate-group-inner {
+  animation: rotate-counter 1s linear infinite;
+}
+
+@keyframes rotate-clockwise {
+  0% { transform: rotate(0deg); transform-origin: 50% 50%; }
+  100% { transform: rotate(360deg); transform-origin: 50% 50%; }
+}
+@keyframes rotate-counter {
+  0% { transform: rotate(0deg); transform-origin: 50% 50%; }
+  100% { transform: rotate(-360deg); transform-origin: 50% 50%; }
 }
 </style>

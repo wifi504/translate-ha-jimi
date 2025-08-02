@@ -23,7 +23,7 @@
             </div>
           </div>
         </div>
-        <text-block v-model="inputText" class="input" :rows="7" :placeholder="placeholder" />
+        <text-block v-model="inputText" mode="phone" :rows="7" :placeholder="placeholder" />
       </div>
       <div class="text-button" @click="handleSwitch">
         <icon-button :size="18" color="#8a4845" icon="switch" :rotate="90" />
@@ -38,7 +38,7 @@
           </div>
         </div>
         <text-block
-          v-model="translated" class="input" :rows="7" :placeholder="translated ? '' : '吉米语法错误 ~ 哈气！'"
+          v-model="translated" :rows="7" mode="phone" :placeholder="translated ? '' : '吉米语法错误 ~ 哈气！'"
           disabled
         />
       </div>
@@ -70,7 +70,7 @@ import { useRouter } from 'vue-router'
 import CopyButton from '@/components/common/CopyButton.vue'
 import IconButton from '@/components/common/IconButton.vue'
 import TextBlock from '@/components/common/TextBlock.vue'
-import { autoUpdate, getHaJimiTitle } from '@/utils/randomTitle.ts'
+import { autoUpdate, getHaJimiTitle } from '@/utils/random-title.ts'
 import { getHaJimiWords, haJimiToHuman, humanToHaJimi } from '@/utils/translate.ts'
 import FootInfo from '@/views/base64/components/FootInfo.vue'
 import HeadBar from '@/views/base64/components/HeadBar.vue'
@@ -166,13 +166,6 @@ onMounted(() => {
           display: flex;
           gap: 5px;
         }
-      }
-
-      .input {
-        width: 100%;
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
       }
     }
   }

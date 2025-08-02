@@ -2,7 +2,7 @@ import { SecureChatService } from '@/service/SecureChatService.ts'
 import { TextCompressService } from '@/service/TextCompressService.ts'
 import { HaJimiEncodeUtil } from '@/utils/HaJimiEncodeUtil.ts'
 
-async function test() {
+export default async function test() {
   const boy = new SecureChatService()
   await boy.init()
   console.log('初始化Boy', boy)
@@ -51,5 +51,3 @@ async function test() {
   console.log(s)
   console.log(HaJimiEncodeUtil.stripHaJimi(s))
 }
-
-test()

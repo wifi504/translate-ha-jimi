@@ -1,19 +1,16 @@
 <template>
-  <button @click="handleGoBase64">
-    前往旧版
-  </button>
+  <suspense>
+    <async-main />
+  </suspense>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { defineAsyncComponent } from 'vue'
+import { useLoadingStore } from '@/stores/loading.ts'
 
-const router = useRouter()
+useLoadingStore().show()
 
-function handleGoBase64() {
-  router.push('/base64')
-}
+const AsyncMain = defineAsyncComponent({
+  loader: () => import('@/views/index/Main.vue'),
+})
 </script>
-
-<style scoped lang="less">
-
-</style>

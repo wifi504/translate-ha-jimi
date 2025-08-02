@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import TextLink from '@/components/common/TextLink.vue'
-import { autoUpdate, getHaJimiTitle } from '@/utils/randomTitle.ts'
+import { autoUpdate, getHaJimiTitle } from '@/utils/random-title.ts'
 
 const props = withDefaults(defineProps<{
   mode?: 'pc' | 'phone'

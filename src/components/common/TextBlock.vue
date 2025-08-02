@@ -2,6 +2,7 @@
   <textarea
     :value="modelValue"
     class="input"
+    :class="mode"
     :placeholder="props.placeholder"
     :rows="props.rows"
     :disabled="props.disabled"
@@ -10,20 +11,17 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-  rows: {
-    type: Number,
-    default: 2,
-  },
-  placeholder: {
-    type: String,
-    default: '请在此输入内容...',
-  },
-  modelValue: String,
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
+const props = withDefaults(defineProps<{
+  rows?: number
+  placeholder?: string
+  modelValue?: string
+  disabled?: boolean
+  mode?: 'pc' | 'phone'
+}>(), {
+  rows: 2,
+  placeholder: '请在此输入内容...',
+  disabled: false,
+  mode: 'pc',
 })
 
 // eslint-disable-next-line unused-imports/no-unused-vars
@@ -82,5 +80,12 @@ const emit = defineEmits(['update:modelValue'])
   /* Firefox 滚动条兼容 */
   scrollbar-width: thin;
   scrollbar-color: rgba(100, 100, 100, 0.3) transparent;
+}
+
+.phone {
+  width: 100%;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
 }
 </style>
