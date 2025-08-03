@@ -1,5 +1,7 @@
+import type { ComputedRef } from 'vue'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+
 import { SecureChatService } from '@/service/SecureChatService.ts'
 
 /**
@@ -43,6 +45,8 @@ export const useContactStore = defineStore('contact', () => {
   const unlocked = ref(false)
   const password = ref('')
   const contactMap = ref(new Map<string, Uint8Array>())
+  const localKeyCache = ref(localStorage.getItem(STORAGE_KEY))
+  const currentContact = ref('')
 
   /**
    * 返回值是以下枚举值：'success' | 'fail' | 'access_denied'，
@@ -127,6 +131,7 @@ export const useContactStore = defineStore('contact', () => {
       contactMap.value = map
       password.value = pass
       unlocked.value = true
+      currentContact.value = map.keys().next().value ?? ''
       return 'success'
     }
     catch {
@@ -178,8 +183,9 @@ export const useContactStore = defineStore('contact', () => {
       salt: base64Encode(salt),
       iterations,
     }
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+    const result = JSON.stringify(payload)
+    localStorage.setItem(STORAGE_KEY, result)
+    localKeyCache.value = result
   }
 
   /**
@@ -205,17 +211,18 @@ export const useContactStore = defineStore('contact', () => {
       return 'duplicate_user'
     contactMap.value.set(nickname, key)
     await save()
+    currentContact.value = nickname
     return 'success'
   }
 
   /**
    * 获取当前联系人列表
    */
-  function getContactList(): string[] | 'access_denied' {
+  const getContactList: ComputedRef<string[] | 'access_denied'> = computed(() => {
     if (!unlocked.value)
       return 'access_denied'
-    return Array.from(contactMap.value.keys())
-  }
+    return Array.from(contactMap.value.keys()).sort()
+  })
 
   /**
    * 重命名联系人
@@ -251,22 +258,19 @@ export const useContactStore = defineStore('contact', () => {
   /**
    * 返回现在的认证状态，是否解锁
    */
-  function hasAuth(): boolean {
-    return unlocked.value
-  }
+  const hasAuth: ComputedRef<boolean> = computed(() => unlocked.value)
 
   /**
-   * 返回现在的缓存状态，本地是否有密钥数据
+   * 返回现在的缓存状态，本地是否没有密钥数据
    */
-  function hasClear(): boolean {
-    return !localStorage.getItem(STORAGE_KEY)
-  }
+  const hasClear: ComputedRef<boolean> = computed(() => !localKeyCache.value)
 
   /**
    * 清空本地所有密钥数据
    */
   function clear(): void {
     localStorage.removeItem(STORAGE_KEY)
+    localKeyCache.value = null
     contactMap.value.clear()
     unlocked.value = false
     password.value = ''
@@ -312,6 +316,7 @@ export const useContactStore = defineStore('contact', () => {
     setPassword,
     clear,
     getContactList,
+    currentContact,
     rename,
     remove,
     hasAuth,

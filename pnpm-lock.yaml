@@ -42,6 +42,12 @@ importers:
       '@types/pako':
         specifier: ^2.0.3
         version: 2.0.3
+      '@vicons/antd':
+        specifier: ^0.13.0
+        version: 0.13.0
+      '@vicons/fluent':
+        specifier: ^0.13.0
+        version: 0.13.0
       '@vitejs/plugin-vue':
         specifier: ^6.0.0
         version: 6.0.0(vite@7.0.5(@types/node@24.0.14)(less@4.4.0)(tsx@4.20.3)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))
@@ -670,6 +676,12 @@ packages:
   '@typescript-eslint/visitor-keys@8.37.0':
     resolution: {integrity: sha512-YzfhzcTnZVPiLfP/oeKtDp2evwvHLMe0LOy7oe+hb9KKIumLNohYS9Hgp1ifwpu42YWxhZE8yieggz6JpqO/1w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@vicons/antd@0.13.0':
+    resolution: {integrity: sha512-yrUGoUSz2BbGupk9ghQOahc04n5H3MwUDM9pVPsLh9U1uqB47oRWZvYRiZaT1JKPqgTgSE6BXcVw4i9MOF4M+g==}
+
+  '@vicons/fluent@0.13.0':
+    resolution: {integrity: sha512-bYGZsOE3qzvm3Cm43e7tybgGlr5ZUpYqtRZq0g0Tfupe8jIzLolpvQLNUt1zS8Mgt6goTbUk5YH7Fkv16jkykg==}
 
   '@vitejs/plugin-vue@6.0.0':
     resolution: {integrity: sha512-iAliE72WsdhjzTOp2DtvKThq1VBC4REhwRcaA+zPAAph6I+OQhUXv+Xu2KS7ElxYtb7Zc/3R30Hwv1DxEo7NXQ==}
@@ -2541,6 +2553,10 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.37.0
       eslint-visitor-keys: 4.2.1
+
+  '@vicons/antd@0.13.0': {}
+
+  '@vicons/fluent@0.13.0': {}
 
   '@vitejs/plugin-vue@6.0.0(vite@7.0.5(@types/node@24.0.14)(less@4.4.0)(tsx@4.20.3)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))':
     dependencies:

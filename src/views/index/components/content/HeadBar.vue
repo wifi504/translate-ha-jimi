@@ -1,30 +1,24 @@
 <template>
   <div class="top-bar" :class="props.mode">
-    <img class="avatar" src="../../../assets/image/hjm.png" alt="LOGO">
-    <span class="title">{{ title.substring(0, 2) }}密语加密器</span>
-    <span v-if="props.mode === 'pc'" class="sub-title" @click="navigateBiliBili">→<span>哈</span>观看<span>吉米</span>演示视频，曼波~</span>
+    <img class="avatar" src="@/assets/image/hjm.png" alt="LOGO">
+    <div class="title">
+      哈基密语加密器<br>
+      <span>一款离线的端到端加密聊天工具</span>
+    </div>
+    <span v-if="props.mode === 'pc'" class="sub-title" @click="navigateBiliBili">→<span>哈</span>观看<span>基密</span>演示视频，曼波~</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { autoUpdate, getHaJimiTitle } from '@/utils/random-title.ts'
-
 const props = withDefaults(defineProps<{
   mode?: 'pc' | 'phone'
 }>(), {
   mode: 'pc',
 })
 
-const title = getHaJimiTitle()
-
 function navigateBiliBili() {
   window.open('https://www.bilibili.com/video/BV16Lgiz5E2m/', '_blank')
 }
-
-onMounted(() => {
-  autoUpdate(title)
-})
 </script>
 
 <style scoped lang="less">
@@ -34,7 +28,7 @@ onMounted(() => {
   top: 0;
   left: 0;
   right: 0;
-  height: 70px;
+  height: 90px;
   background-color: #ffffff;
   display: flex;
   align-items: center;
@@ -50,8 +44,8 @@ onMounted(() => {
 }
 
 .avatar {
-  width: 45px;
-  height: 45px;
+  width: 50px;
+  height: 50px;
   margin-right: 20px;
 }
 
@@ -59,6 +53,13 @@ onMounted(() => {
   font-size: 30px;
   font-weight: bold;
   color: #333333;
+  line-height: .8;
+
+  span {
+    font-size: 18px;
+    font-weight: normal;
+    color: #494949;
+  }
 }
 
 .sub-title {
@@ -66,8 +67,7 @@ onMounted(() => {
   color: #a4a4a4;
   border-bottom: #a4a4a4 2px dashed;
   position: relative;
-  top: 5px;
-  left: 15px;
+  left: 40px;
   transition: all 0.3s;
 
   span {
