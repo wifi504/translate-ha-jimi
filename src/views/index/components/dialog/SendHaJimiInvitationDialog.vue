@@ -205,7 +205,7 @@ watch(yourIdentityStr, (newVal) => {
 
 function getSharedURL() {
   const origin = window.location.origin
-  const query = `/?invite=${myIdentityStr.value}`
+  const query = `/hajimi/?invite=${myIdentityStr.value}`
   return origin + query
 }
 

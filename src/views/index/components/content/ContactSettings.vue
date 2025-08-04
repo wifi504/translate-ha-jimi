@@ -1,5 +1,5 @@
 <template>
-  <n-card hoverable :style="mode === 'pc' ? 'width: 290px;' : ''">
+  <n-card hoverable :style="mode === 'pc' ? 'width: 290px;' : ''" :size="mode === 'phone' ? 'small' : 'medium'">
     <template #header>
       <n-flex v-if="!contactStore.hasClear" align="center" :size="4">
         <n-icon>

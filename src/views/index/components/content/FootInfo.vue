@@ -1,7 +1,10 @@
 <template>
   <div v-if="props.mode === 'pc'" class="foot-container-pc">
     <p>
-      哈基密语加密器 | 一款离线的端到端加密聊天工具
+      哈基密语加密器 | 一款离线的端到端加密聊天工具 |
+      <text-link href="https://app.xiaobaozi.cn/">
+        友情链接：一只小包子哈基米加密器
+      </text-link>
     </p>
     <p>
       使用 GPL-3.0 license 开放源代码 |
@@ -25,6 +28,11 @@
     </p>
     <p>
       一款离线的端到端加密聊天工具
+    </p>
+    <p>
+      <text-link href="https://app.xiaobaozi.cn/">
+        友情链接：一只小包子丶哈基米加密器
+      </text-link>
     </p>
     <p>
       使用 GPL-3.0 license 开放源代码

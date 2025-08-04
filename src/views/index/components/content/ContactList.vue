@@ -1,5 +1,10 @@
 <template>
-  <n-card title="联系人" :style="mode === 'pc' ? 'width: 290px;' : ''" hoverable>
+  <n-card
+    title="联系人"
+    :style="mode === 'pc' ? 'width: 290px;' : ''"
+    hoverable
+    :size="mode === 'phone' ? 'small' : 'medium'"
+  >
     <template #header-extra>
       <n-button
         type="primary"
@@ -17,7 +22,7 @@
     <n-scrollbar
       v-if="list && list !== 'access_denied' && list.length > 0"
       ref="scrollbarRef"
-      style="border: 1px solid #efeff5;"
+      style="border: 1px solid #efeff5; box-shadow: 0 0 10px rgba(138,72,69,0.13)"
       :style="mode === 'pc' ? 'height: 400px;' : 'height: 200px;'"
     >
       <n-list>

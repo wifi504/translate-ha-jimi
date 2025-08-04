@@ -13,16 +13,40 @@
         </high-light-text>
       </n-li>
       <n-li>
+        在把人儿语加密成哈基密语时会
+        <high-light-text>
+          自动启用压缩算法
+        </high-light-text>
+        ，所以对于短文本来说，
+        加密器会直接将其转换成密文，而对于大篇幅文本，加密器会先执行压缩然后再加密，
+        你可以留意输出结果的文本块下方的压缩率指示。
+      </n-li>
+      <n-li>
         本网站的所有功能完全基于前端浏览器
         <high-light-text>
           本地实现
         </high-light-text>
-        ，主要使用 Vue3 + TypeScript
+        ，所以你如果真的对敏感数据有顾虑，可以等网页加载完毕后断网使用。
+      </n-li>
+      <n-li>
+        主要使用 Vue3 + TypeScript
         ，项目开放源代码，可以
         <link-button href="https://github.com/wifi504/translate-ha-jimi">
           点击前往Github
         </link-button>
-        查看，求Star。
+        查看，求
+        <high-light-text>
+          Star
+        </high-light-text>
+        ，如果有建议或者Bug反馈，欢迎在
+        <link-button href="https://github.com/wifi504/translate-ha-jimi/issues">
+          issues
+        </link-button>
+        留言，同时，也欢迎提
+        <link-button href="https://github.com/wifi504/translate-ha-jimi/pulls">
+          PR
+        </link-button>
+        ！
       </n-li>
       <n-li>
         你需要注意访问网站时是否是
@@ -65,7 +89,11 @@
     <n-ul>
       <n-li>
         如果你没有这么高的加密需求，可以继续使用1.0版本，哈吉米语翻译器，
-        它是基于自定义（加盐）的Base64编码，开箱即用，
+        它是基于
+        <high-light-text>
+          自定义（加盐）的Base64编码
+        </high-light-text>
+        ，开箱即用，
         <link-button href="/hajimi/base64">
           点击前往
         </link-button>

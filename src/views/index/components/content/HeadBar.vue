@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<{
 })
 
 function navigateBiliBili() {
-  window.open('https://www.bilibili.com/video/BV16Lgiz5E2m/', '_blank')
+  window.open('https://www.bilibili.com/video/BV1UctVzTEGv/', '_blank')
 }
 </script>
 

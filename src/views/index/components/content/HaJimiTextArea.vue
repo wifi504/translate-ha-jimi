@@ -5,7 +5,7 @@
     :size="mode === 'phone' ? 0 : 10"
     class="wrapper"
   >
-    <n-card :title="inputTitle" hoverable>
+    <n-card :title="inputTitle" hoverable :size="mode === 'phone' ? 'small' : 'medium'">
       <template #header-extra>
         <n-button-group size="small">
           <n-button
@@ -49,7 +49,7 @@
         :disabled="!contactStore.hasAuth"
       />
     </n-card>
-    <n-card :title="outputTitle" hoverable>
+    <n-card :title="outputTitle" hoverable :size="mode === 'phone' ? 'small' : 'medium'">
       <template #header-extra>
         <n-button
           ghost
@@ -79,6 +79,7 @@
       </div>
       <n-input
         v-model:value="outputText"
+        :style="mode === 'phone' ? 'margin-bottom: 14px' : ''"
         type="textarea"
         :autosize="{
           minRows: textLineNumber,
@@ -268,7 +269,8 @@ function updateText() {
   outputTitle.value = '解密失败'
 }
 
-const debounceUpdateText = debounce(updateText, 100)
+// 本来以为会很卡，但是事实上现代计算机的性能根部不需要给这玩意儿上防抖，1ms意思一下吧
+const debounceUpdateText = debounce(updateText, 1)
 
 watch(() => inputText.value, () => {
   debounceUpdateText()
@@ -299,7 +301,7 @@ watch(() => contactStore.currentContact, () => {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0);
-  z-index: 9999;
+  z-index: 99;
   cursor: not-allowed;
 }
 </style>
