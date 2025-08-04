@@ -1,5 +1,5 @@
 <template>
-  <n-card title="联系人" style="width: 290px;" hoverable>
+  <n-card title="联系人" :style="mode === 'pc' ? 'width: 290px;' : ''" hoverable>
     <template #header-extra>
       <n-button
         type="primary"
@@ -17,7 +17,8 @@
     <n-scrollbar
       v-if="list && list !== 'access_denied' && list.length > 0"
       ref="scrollbarRef"
-      style="height: 400px; border: 1px solid #efeff5;"
+      style="border: 1px solid #efeff5;"
+      :style="mode === 'pc' ? 'height: 400px;' : 'height: 200px;'"
     >
       <n-list>
         <n-list-item
@@ -79,7 +80,8 @@
     <n-empty
       v-else
       description="没有联系人"
-      style="user-select: none; height: 400px;"
+      style="user-select: none;"
+      :style="mode === 'pc' ? 'height: 400px;' : 'height: 200px;'"
     >
       <template #icon>
         <n-icon>
@@ -113,10 +115,13 @@ import {
 import { onMounted, ref } from 'vue'
 import { useContactStore } from '@/stores/contactStore.ts'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   list: string[] | 'access_denied'
   active: string
-}>()
+  mode?: 'pc' | 'phone'
+}>(), {
+  mode: 'pc',
+})
 
 defineEmits<{
   (e: 'addOne'): void
@@ -158,16 +163,17 @@ function handleSelect(nickname: string) {
 const scrollbarRef = ref<InstanceType<typeof NScrollbar>>()
 
 function autoScroll() {
-  scrollbarRef.value?.scrollTo({
-    top: 52 * (props.list.indexOf(props.active) - 2),
-    behavior: 'smooth',
-  })
+  setTimeout(() => {
+    scrollbarRef.value?.scrollTo({
+      top: 52 * (props.list.indexOf(props.active) - 2),
+      behavior: 'smooth',
+    })
+  }, 200)
 }
 
 onMounted(() => {
   // 自动滚动到选中的
   setTimeout(() => autoScroll(), 1000)
-  console.log(contactStore.hasAuth)
 })
 
 defineExpose({

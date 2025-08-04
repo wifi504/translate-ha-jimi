@@ -79,17 +79,31 @@ export class HaJimiEncodeUtil {
   }
 
   /**
-   * 把“哈基密钥”装饰一下
+   * 装饰：哈基密钥
    */
   static decorateHaJimiKey(text: string): string {
     return `哈基密钥${this.decorateHaJimi(text)}`
   }
 
   /**
+   * 装饰：哈基密语
+   */
+  static decorateHaJimiText(text: string): string {
+    return `哈基密语${this.decorateHaJimi(text)}`
+  }
+
+  /**
+   * 装饰：哈基密密语
+   */
+  static decorateHaJimiTextCompress(text: string): string {
+    return `哈基密密语${this.decorateHaJimi(text)}`
+  }
+
+  /**
    * 把装饰过的“哈基密语”给还原
    */
   static stripHaJimi(text: string): string {
-    const set = new Set(`哈基密钥${this.decoration.join('')}`)
+    const set = new Set(`哈基密钥语${this.decoration.join('')}`)
     let result = ''
     for (const ch of text) {
       if (!set.has(ch)) {

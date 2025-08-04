@@ -220,6 +220,47 @@ export class SecureChatService {
   }
 
   /**
+   * 静态方法，传入共享密钥加密字符串消息（SecretBox），带校验，防篡改
+   * 返回包含随机 nonce（12位） 和密文的对象
+   */
+  static encryptByKeyAEAD(message: string | Uint8Array, sharedKey: Uint8Array): { nonce: Uint8Array, ciphertext: Uint8Array } {
+    const nonce = sodium.randombytes_buf(sodium.crypto_aead_chacha20poly1305_ietf_NPUBBYTES)
+    let messageData: string | Uint8Array
+    if (typeof message === 'string') {
+      messageData = sodium.from_string(message)
+    }
+    else {
+      messageData = message
+    }
+    const ciphertext = sodium.crypto_aead_chacha20poly1305_ietf_encrypt(
+      messageData,
+      null,
+      null,
+      nonce,
+      sharedKey,
+    )
+    return { nonce, ciphertext }
+  }
+
+  /**
+   * 静态方法，传入密钥解密密文（校验过的那个密文，不是普通密文）
+   * 返回解密后的字符串消息
+   */
+  static decryptByKeyAEAD(ciphertext: Uint8Array, nonce: Uint8Array, sharedKey: Uint8Array, raw: boolean = false): string | Uint8Array {
+    const plaintext = sodium.crypto_aead_chacha20poly1305_ietf_decrypt(
+      null,
+      ciphertext,
+      null,
+      nonce,
+      sharedKey,
+    )
+    if (raw) {
+      return plaintext
+    }
+    return sodium.to_string(plaintext)
+  }
+
+  /**
    * 静态方法：Uint8Array 转换成 Hex
    */
   static uint8ArrayToHex(uint8Array: Uint8Array): string {

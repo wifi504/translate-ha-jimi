@@ -3,7 +3,7 @@
     <n-card style="width: 400px;">
       <template #header>
         <n-h3 prefix="bar" style="margin-bottom: 0">
-          添加联系人
+          你有新的邀请
         </n-h3>
       </template>
       <div style="margin-bottom: 20px;">

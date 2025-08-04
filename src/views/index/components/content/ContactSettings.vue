@@ -1,5 +1,5 @@
 <template>
-  <n-card hoverable style="width: 290px;">
+  <n-card hoverable :style="mode === 'pc' ? 'width: 290px;' : ''">
     <template #header>
       <n-flex v-if="!contactStore.hasClear" align="center" :size="4">
         <n-icon>
@@ -70,6 +70,12 @@ import {
   NIcon,
 } from 'naive-ui'
 import { useContactStore } from '@/stores/contactStore.ts'
+
+withDefaults(defineProps<{
+  mode?: 'pc' | 'phone'
+}>(), {
+  mode: 'pc',
+})
 
 defineEmits<{
   (e: 'setPwd'): void

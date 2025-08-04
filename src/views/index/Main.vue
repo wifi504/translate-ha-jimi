@@ -4,7 +4,6 @@
 
 <script setup lang="ts">
 import { onMounted, shallowRef } from 'vue'
-import test from '@/service/test.ts'
 import { useLoadingStore } from '@/stores/loading.ts'
 import { updatePage } from '@/utils/user-agent.ts'
 import PC from '@/views/index/PC.vue'
@@ -15,7 +14,6 @@ const currentPage = shallowRef()
 document.title = '哈基密语加密器'
 onMounted(() => {
   updatePage(Phone, PC, currentPage)
-  test()
   useLoadingStore().hide()
 })
 </script>

@@ -17,6 +17,7 @@
           }"
         />
         <contact-list
+          ref="contactListRef"
           :list="contactStore.getContactList"
           :active="contactStore.currentContact"
           style="max-height: 600px;"
@@ -24,11 +25,12 @@
         />
       </n-flex>
       <n-flex vertical style="width: 100%;">
-        <ha-jimi-text-area />
+        <ha-jimi-text-area @has-changed-current-contact="() => contactListRef?.autoScroll()" />
         <notice />
       </n-flex>
     </n-flex>
   </div>
+  <foot-info />
   <password-dialog
     ref="passwordDialogRef"
     :mode="passwordMode"
@@ -59,6 +61,7 @@ import { ref } from 'vue'
 import { useContactStore } from '@/stores/contactStore.ts'
 import ContactList from '@/views/index/components/content/ContactList.vue'
 import ContactSettings from '@/views/index/components/content/ContactSettings.vue'
+import FootInfo from '@/views/index/components/content/FootInfo.vue'
 import HaJimiTextArea from '@/views/index/components/content/HaJimiTextArea.vue'
 import HeadBar from '@/views/index/components/content/HeadBar.vue'
 import Notice from '@/views/index/components/content/Notice.vue'
@@ -68,6 +71,7 @@ import PasswordDialog from '@/views/index/components/dialog/PasswordDialog.vue'
 import SendHaJimiInvitationDialog from '@/views/index/components/dialog/SendHaJimiInvitationDialog.vue'
 
 const passwordDialogRef = ref<InstanceType<typeof PasswordDialog>>()
+const contactListRef = ref<InstanceType<typeof ContactList>>()
 const sendHaJimiInvitationDialogRef = ref<InstanceType<typeof SendHaJimiInvitationDialog>>()
 const clearHaJimiCacheDialogRef = ref<InstanceType<typeof ClearHaJimiCacheDialog>>()
 const passwordMode = ref<'set-password' | 'type-password'>('set-password')
@@ -110,7 +114,11 @@ async function handleTypePassword(password: string) {
 }
 
 .container {
-  margin: calc(90px + 25px) auto 0 auto;
+  padding-top: calc(90px + 25px);
+  margin: auto;
   width: 80%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 </style>

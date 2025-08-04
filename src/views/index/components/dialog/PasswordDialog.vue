@@ -19,15 +19,31 @@
           <n-collapse-item title="查看详情">
             <n-ul>
               <n-li>
-                你的联系人和对应的哈基友密钥都会加密存储在你的浏览器本地，
-                并且每次浏览器打开时你都需要输入一次密码解锁才可以继续使用。
+                你的联系人和对应的哈基友密钥都会
+                <high-light-text>
+                  加密存储
+                </high-light-text>
+                在你的浏览器本地，
+                并且每次浏览器打开时你都需要输入一次密码解锁才可以继续使用
               </n-li>
               <n-li>
-                如果你忘记了密码，可以选择 清空哈基友密钥 ，然后设置新密码再去新建联系人。
+                如果你忘记了密码，可以选择
+                <high-light-text>
+                  清空哈基友密钥
+                </high-light-text>
+                ，然后设置新密码再去添加联系人
               </n-li>
               <n-li>
                 当然，这些数据是跟随你的浏览器的，如果你要更换设备或者是更换浏览器，
-                可以选择 导出哈基友密钥 和 导入哈基友密钥 ！（不过导入导出暂未实现）
+                可以选择
+                <high-light-text>
+                  导出哈基友密钥
+                </high-light-text>
+                和
+                <high-light-text>
+                  导入哈基友密钥
+                </high-light-text>
+                ！（不过导入导出暂未实现）
               </n-li>
             </n-ul>
           </n-collapse-item>
@@ -77,6 +93,7 @@ import {
   useMessage,
 } from 'naive-ui'
 import { ref } from 'vue'
+import HighLightText from '@/components/common/HighLightText.vue'
 
 const props = withDefaults(defineProps<{
   mode?: 'set-password' | 'type-password'
