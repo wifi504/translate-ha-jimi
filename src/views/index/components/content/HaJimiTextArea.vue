@@ -163,11 +163,11 @@ function updateText() {
   // 预处理输入文本：如果是哈基密语，去除所有空白字符
   let processedInputText = inputText.value
   const isHaJimiText = inputText.value.startsWith('哈基密语') || inputText.value.startsWith('哈基密密语')
-  
+
   if (isHaJimiText) {
     const originalLength = inputText.value.length
     processedInputText = inputText.value.replace(/\s/g, '') // 去除所有空白字符（空格、换行、制表符等）
-    
+
     // 如果去除了空白字符，给用户一个友好提示
     if (originalLength !== processedInputText.length) {
       message.info('已自动去除多余的空白字符')
@@ -230,7 +230,7 @@ function updateText() {
     return
   }
   // 不是哈基密语，直接加密
-  if (!(processedInputText.startsWith('哈基密语') || processedInputText.startsWith('哈基密密语'))) {
+  if (!isHaJimiText) {
     const compress = encryptToHaJimi(true)
     const normal = encryptToHaJimi(false)
     isCompressed.value = (normal.length > compress.length)
