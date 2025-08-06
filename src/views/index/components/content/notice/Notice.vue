@@ -1,5 +1,6 @@
 <template>
   <n-card hoverable style="margin-bottom: 25px" :size="mode === 'phone' ? 'small' : 'medium'">
+    <law-notice />
     <n-h3 prefix="bar">
       哈基提示
     </n-h3>
@@ -114,6 +115,7 @@ import {
 } from 'naive-ui'
 import HighLightText from '@/components/common/HighLightText.vue'
 import LinkButton from '@/components/common/LinkButton.vue'
+import LawNotice from '@/views/index/components/content/notice/LawNotice.vue'
 
 withDefaults(defineProps<{
   mode?: 'pc' | 'phone'

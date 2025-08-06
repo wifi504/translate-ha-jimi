@@ -64,7 +64,7 @@ import ContactSettings from '@/views/index/components/content/ContactSettings.vu
 import FootInfo from '@/views/index/components/content/FootInfo.vue'
 import HaJimiTextArea from '@/views/index/components/content/HaJimiTextArea.vue'
 import HeadBar from '@/views/index/components/content/HeadBar.vue'
-import Notice from '@/views/index/components/content/Notice.vue'
+import Notice from '@/views/index/components/content/notice/Notice.vue'
 import AcceptHaJimiInvitationDialog from '@/views/index/components/dialog/AcceptHaJimiInvitationDialog.vue'
 import ClearHaJimiCacheDialog from '@/views/index/components/dialog/ClearHaJimiCacheDialog.vue'
 import PasswordDialog from '@/views/index/components/dialog/PasswordDialog.vue'
