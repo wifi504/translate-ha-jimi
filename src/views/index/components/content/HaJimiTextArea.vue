@@ -183,7 +183,7 @@ function updateText() {
     if (!(privateKey instanceof Uint8Array)) {
       return ''
     }
-    const decrypt = HaJimiEncodeUtil.stripHaJimi(inputText.value)
+    const decrypt = HaJimiEncodeUtil.stripHaJimi(inputText.value.trim())
     const nonce = decrypt.substring(0, 12)
     const ciphertext = decrypt.substring(12)
     try {

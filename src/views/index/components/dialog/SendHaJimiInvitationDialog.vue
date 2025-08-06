@@ -161,7 +161,8 @@ async function initSecureChat() {
   myIdentityStr.value = JSON.stringify(identityHex)
 }
 
-function verifySignature(identityStr: string): boolean {
+function verifySignature(identityRawStr: string): boolean {
+  const identityStr = identityRawStr.trim()
   try {
     if (!identityStr) {
       verifyInfo.value = ''
