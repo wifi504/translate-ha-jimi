@@ -160,6 +160,20 @@ function unAuthMessage() {
 // 加密：原文str -> 压缩uint8 -> 盐uint8 + 密文uint8 -> 哈基字符串 -> 哈基密语
 // 解密：哈基密语 -> 哈基字符串 -> 盐uint8 + 密文uint8 -> 解压uint8 -> 原文str
 function updateText() {
+  // 预处理输入文本：如果是哈基密语，去除所有空白字符
+  let processedInputText = inputText.value
+  const isHaJimiText = inputText.value.startsWith('哈基密语') || inputText.value.startsWith('哈基密密语')
+  
+  if (isHaJimiText) {
+    const originalLength = inputText.value.length
+    processedInputText = inputText.value.replace(/\s/g, '') // 去除所有空白字符（空格、换行、制表符等）
+    
+    // 如果去除了空白字符，给用户一个友好提示
+    if (originalLength !== processedInputText.length) {
+      message.info('已自动去除多余的空白字符')
+    }
+  }
+
   // 加密人儿语成哈基密语
   function encryptToHaJimi(compress: boolean): string {
     const privateKey = contactStore.getSecretKey(contactStore.currentContact)
@@ -183,7 +197,7 @@ function updateText() {
     if (!(privateKey instanceof Uint8Array)) {
       return ''
     }
-    const decrypt = HaJimiEncodeUtil.stripHaJimi(inputText.value.trim())
+    const decrypt = HaJimiEncodeUtil.stripHaJimi(processedInputText)
     const nonce = decrypt.substring(0, 12)
     const ciphertext = decrypt.substring(12)
     try {
@@ -207,7 +221,7 @@ function updateText() {
   }
 
   // 为空的情况，复位
-  if (!inputText.value || inputText.value === '') {
+  if (!processedInputText || processedInputText === '') {
     inputTitle.value = '自动检测'
     outputTitle.value = '输出结果'
     outputText.value = ''
@@ -216,7 +230,7 @@ function updateText() {
     return
   }
   // 不是哈基密语，直接加密
-  if (!(inputText.value.startsWith('哈基密语') || inputText.value.startsWith('哈基密密语'))) {
+  if (!(processedInputText.startsWith('哈基密语') || processedInputText.startsWith('哈基密密语'))) {
     const compress = encryptToHaJimi(true)
     const normal = encryptToHaJimi(false)
     isCompressed.value = (normal.length > compress.length)
@@ -228,10 +242,10 @@ function updateText() {
   }
   // 是哈基密语，用当前密钥尝试解密
   // 先判断是压缩还是不压缩
-  if (inputText.value.startsWith('哈基密语')) {
+  if (processedInputText.startsWith('哈基密语')) {
     isCompressed.value = false
   }
-  if (inputText.value.startsWith('哈基密密语')) {
+  if (processedInputText.startsWith('哈基密密语')) {
     isCompressed.value = true
   }
   compressRate.value = null
