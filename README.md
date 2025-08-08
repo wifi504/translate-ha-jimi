@@ -56,3 +56,7 @@ Vue3 | TypeScript | Vite
 ### 开源协议
 
 GNU General Public License v3.0
+
+### Stars
+
+[![Star History Chart](https://api.star-history.com/svg?repos=wifi504/translate-ha-jimi&type=Date)](https://www.star-history.com/#wifi504/translate-ha-jimi&Date)
