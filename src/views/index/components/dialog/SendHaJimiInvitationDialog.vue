@@ -24,7 +24,7 @@
                 :icon-size="50"
               />
             </n-tab-pane>
-            <n-tab-pane name="link" tab="通过分享链接">
+            <n-tab-pane name="link" tab="通过分享链接" style="height: 215px">
               <n-button
                 type="primary"
                 ghost
@@ -42,11 +42,8 @@
               <n-input
                 :value="getSharedURL()"
                 type="textarea"
-                :autosize="{
-                  minRows: 5,
-                  maxRows: 9,
-                }"
                 readonly
+                style="height: 175px"
               />
             </n-tab-pane>
           </n-tabs>
@@ -207,7 +204,7 @@ watch(yourIdentityStr, (newVal) => {
 function getSharedURL() {
   const origin = window.location.origin
   const query = `/hajimi/?invite=${myIdentityStr.value}`
-  return origin + query
+  return encodeURI(origin + query)
 }
 
 function startChat() {
