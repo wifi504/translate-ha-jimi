@@ -1,0 +1,22 @@
+{
+  "name": "fronted-v2",
+  "type": "module",
+  "version": "2.1.0",
+  "private": true,
+  "description": "哈基密语加密器前端工程2.1版（此版本归档进入维护模式）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc -b",
+    "generate-vue-routes": "npx tsx ../scripts/generate-routes.ts"
+  },
+  "dependencies": {
+    "@stablelib/chacha": "^2.0.1",
+    "libsodium-wrappers": "^0.7.15",
+    "pako": "^2.1.0",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.17",
+    "vue-router": "4"
+  }
+}

@@ -13,5 +13,11 @@ export default antfu({
     }],
     'no-cond-assign': ['error', 'except-parens'],
     'vue/component-name-in-template-casing': ['error', 'kebab-case'],
+    // 允许在必要的时候使用显示的 any 类型，但是仍然不建议，不要把TypeScript写成AnyScript啊
+    '@typescript-eslint/no-explicit-any': 'off',
   },
+  ignores: [
+    'java-api/**',
+    'python-api/**',
+  ],
 })

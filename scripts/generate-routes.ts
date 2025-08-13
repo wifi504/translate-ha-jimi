@@ -148,7 +148,7 @@ function parseOptionsFile(optionsPath: string): FlatRouteOption[] {
   const ast = parse(raw, { parser })
 
   const exportNode = ast.program.body.find(
-    n => n.type === 'ExportDefaultDeclaration',
+    (n: any) => n.type === 'ExportDefaultDeclaration',
   ) as types.namedTypes.ExportDefaultDeclaration | undefined
 
   if (!exportNode) {
