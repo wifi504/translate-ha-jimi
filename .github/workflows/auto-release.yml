@@ -38,16 +38,19 @@ jobs:
         with:
           name: 哈基密文 ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
-          body: |
-            ### 🚀 本 Release 由 CI/CD 自动构建
-            - `dist.zip` ：哈基密文加密器网站的打包产物，Web容器可以直接运行
-            - `Source code` ：此版本源代码
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Waiting Publish Webhook
+        run: sleep 5
 
       - name: Upload Build Artifact
         uses: softprops/action-gh-release@v1
         with:
           files: dist.zip
+          body: |
+            ### 🚀 本 Release 由 CI/CD 自动构建
+            - `dist.zip` ：哈基密文加密器网站的打包产物，Web容器可以直接运行
+            - `Source code` ：此版本源代码
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
