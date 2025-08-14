@@ -1,0 +1,55 @@
+name: Auto Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.13.0
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Package dist folder
+        run: |
+          zip -r dist.zip dist
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: 哈基密文 ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body: |
+            ## 🚀 本 Release 由 CI/CD 自动构建
+            - `dist.zip` ：哈基密文加密器网站的打包产物，Web容器可以直接运行
+            - `Source code` ：此版本源代码
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Build Artifact
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
