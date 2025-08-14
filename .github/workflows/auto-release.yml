@@ -39,7 +39,7 @@ jobs:
           name: 哈基密文 ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           body: |
-            ## 🚀 本 Release 由 CI/CD 自动构建
+            ### 🚀 本 Release 由 CI/CD 自动构建
             - `dist.zip` ：哈基密文加密器网站的打包产物，Web容器可以直接运行
             - `Source code` ：此版本源代码
         env:
