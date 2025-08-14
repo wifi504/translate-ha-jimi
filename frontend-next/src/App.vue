@@ -1,17 +1,28 @@
 <template>
-  <div>hello world!</div>
-  <div>读取 Git SHA 环境变量：{{ gitSha }}</div>
-  <div>读取 Version 环境变量：{{ version }}</div>
-  <a :href="`https://github.com/wifi504/translate-ha-jimi/commit/${gitSha}`">前往 {{ gitSha.substring(0, 7) }}</a>
-  <n-button type="primary">
-    aaa
-  </n-button>
-  <n-icon :size="32">
-    <vi-antd-account-book-twotone />
-  </n-icon>
+  <n-config-provider :theme-overrides="themeOverrides">
+    <n-message-provider>
+      <router-view />
+      <foot-note />
+    </n-message-provider>
+  </n-config-provider>
 </template>
 
 <script setup lang="ts">
-const gitSha = import.meta.env.VITE_GIT_SHA
-const version = import.meta.env.VITE_VERSION
+import { onBeforeMount } from 'vue'
+import themeOverrides from '@/assets/style/naive-ui-theme-overrides.json'
+
+// 全局注入CSS变量
+onBeforeMount(() => {
+  const root = document.documentElement
+  const colors = themeOverrides.common as any
+  root.style.setProperty('--primary-color', colors.primaryColor)
+  root.style.setProperty('--primary-color-light', colors.primaryColorHover)
+  root.style.setProperty('--primary-color-dark', colors.primaryColorPressed)
+  root.style.setProperty('--background-color', '#EFEFEF')
+  root.style.setProperty('--background-color-light', '#FFFFFF')
+  root.style.setProperty('--background-color-dark', '#CFCFCF')
+  root.style.setProperty('--font-size-normal', '14px')
+  root.style.setProperty('--font-size-small', '12px')
+  root.style.setProperty('--font-size-large', '18px')
+})
 </script>
