@@ -5,11 +5,11 @@ import type { RouteRecordRaw } from 'vue-router'
  */
 export default [
   {
-    path: '/',
-    component: () => import('@/views/Index.vue'),
+    path: '/:pathMatch(.*)*',
+    component: () => import('@/components/NotFound.vue'),
   },
   {
-    path: '/aaa',
-    component: () => import('@/components/foot-note/FootNote.vue'),
+    path: '/',
+    component: () => import('@/views/Index.vue'),
   },
 ] as RouteRecordRaw[]

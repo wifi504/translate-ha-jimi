@@ -1,7 +1,7 @@
 <!-- 超链接组件 -->
 <template>
   <a :href="href" target="_blank">
-    <span v-if="iconSvg" class="icon" v-html="iconSvg" />
+    <span v-if="iconSvg" class="icon" :style="`margin-right: ${gap}px;`" v-html="iconSvg" />
     <span class="text"><slot /></span>
   </a>
 </template>
@@ -10,6 +10,7 @@
 defineProps<{
   href: string
   iconSvg?: string
+  gap?: number
 }>()
 </script>
 
@@ -18,25 +19,24 @@ a {
   text-decoration: none;
   color: var(--background-color);
   font-size: var(--font-size-normal);
-  height: var(--font-size-large);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
 
   &:hover, &:active {
     color: var(--background-color-light);
     text-decoration: underline dashed;
-  }
 
-  .text {
-    position: relative;
-    top: 1px;
+    .icon::v-deep(svg) {
+      path {
+        fill: var(--background-color-light);
+      }
+    }
   }
 
   .icon {
     width: var(--font-size-large);
     height: var(--font-size-large);
     display: inline-block;
+    position: relative;
+    top: calc(var(--font-size-normal) * 0.2);
 
     &::v-deep(svg) {
       display: block;

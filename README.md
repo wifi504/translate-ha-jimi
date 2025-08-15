@@ -1,6 +1,6 @@
 # 哈基密语 Next
 
-![version](https://img.shields.io/badge/version-3.0.0-blue)![license](https://img.shields.io/badge/license-GPLv3-green)![vue](https://img.shields.io/badge/vue-3.5.x-4FC08D)![last-commit](https://img.shields.io/github/last-commit/wifi504/translate-ha-jimi)![stars](https://img.shields.io/github/stars/wifi504/translate-ha-jimi?style=social)
+![version](https://img.shields.io/badge/version-3.0.0-blue) ![license](https://img.shields.io/badge/license-GPLv3-green) ![vue](https://img.shields.io/badge/vue-3.5.x-4FC08D) ![last-commit](https://img.shields.io/github/last-commit/wifi504/translate-ha-jimi) ![stars](https://img.shields.io/github/stars/wifi504/translate-ha-jimi?style=social)
 
 哈基米加密器 Next 版本，融合了 `v1.0` 与 `v2.0` 的所有功能，现在可以更方便、更优雅的使用。
 
@@ -26,7 +26,7 @@
 
   ```
   第一行块：带图标的超链接
-  第二行块：纯文本超链接， “|” 分隔
+  第二行块：友情链接， “|” 分隔
   第三行块：版权信息、版本信息
   第四行块：备案信息、额外信息
   ```
@@ -37,8 +37,11 @@
 
 - [ ] JavaScript API库
 - [ ] Next版本全新前端
-- [ ] 要在密钥交换后加一步哈基函数校验
-- [ ] 对二进制文件的加密支持
+  - [ ] 能自适应的banner
+  - [ ] 全局的404页面
+  - [x] 新的脚注信息展示，自动注入版本号等
+  - [ ] 对二进制文件的加密支持
+  - [ ] 要在密钥交换后加一步哈基函数校验
 - [ ] 油猴脚本，让浏览器可以自动处理哈基密文
 - [ ] Java、Python平台API库
 

@@ -1,7 +1,7 @@
 {
   "name": "fronted-next",
   "type": "module",
-  "version": "3.0.0",
+  "version": "3.0",
   "private": true,
   "description": "哈基密语加密器Next版前端工程",
   "scripts": {
