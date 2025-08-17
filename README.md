@@ -39,9 +39,12 @@
 
 ### 使用
 
-- 使用电脑或手机打开 [哈基密语加密器](https://lhlnb.top/hajimi) 即可在线体验
+#### 在线体验
 
-- 如果你想要本地部署项目，最简单的，只需要如下三个步骤：
+使用电脑或手机打开 [哈基密语加密器](https://lhlnb.top/hajimi) 即可在线体验
+
+#### 本地部署
+如果你想要本地部署项目，最简单的，只需要如下三个步骤：
 
   1. 完全下载项目仓库到本地，并且安装有 `Node.js` 环境，可以使用 `pnpm` 等包管理工具
 
@@ -61,7 +64,17 @@
      pnpm run preview
      ```
 
-  接下来就可以在本地环境使用了
+  接下来就可以在本地环境使用了。
+
+#### 部署到vercel
+
+点击下面按钮：
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwifi504%2Ftranslate-ha-jimi&project-name=translate-ha-jimi&repository-name=translate-ha-jimi)
+
+切换到vercel分支后，按下"Create"即可全自动部署。
+
+
 
 ### 技术栈
 
