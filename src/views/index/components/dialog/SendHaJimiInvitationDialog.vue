@@ -203,7 +203,7 @@ watch(yourIdentityStr, (newVal) => {
 
 function getSharedURL() {
   const origin = window.location.origin
-  const query = `/hajimi/?invite=${myIdentityStr.value}`
+  const query = `/?invite=${myIdentityStr.value}`
   return encodeURI(origin + query)
 }
 

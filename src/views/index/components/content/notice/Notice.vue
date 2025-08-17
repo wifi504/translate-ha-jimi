@@ -95,7 +95,7 @@
           自定义（加盐）的Base64编码
         </high-light-text>
         ，开箱即用，
-        <link-button href="/hajimi/base64">
+        <link-button href="/base64">
           点击前往
         </link-button>
         ，不需要繁琐的先添加好友才能开始聊天
