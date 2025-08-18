@@ -1,6 +1,9 @@
 {
   "name": "hayalib",
-  "version": "0.0.3",
+  "version": "0.0.9",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "哈基密文 SDK",
   "exports": {
     ".": {
@@ -13,7 +16,8 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "publish:only": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org"
   },
   "dependencies": {
     "@hayalib/encoder": "workspace:*"

@@ -1,6 +1,6 @@
 {
   "name": "@hayalib/encoder",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
@@ -16,6 +16,7 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "publish:only": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org"
   }
 }
