@@ -21,7 +21,7 @@ export default antfu({
     'antfu/if-newline': 'off',
   },
   ignores: [
-    'java-api/**',
-    'python-api/**',
+    'java-sdk/**',
+    'python-sdk/**',
   ],
 })

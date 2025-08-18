@@ -13,6 +13,7 @@ declare module 'vue' {
     FootNote: typeof import('./components/foot-note/FootNote.vue')['default']
     HaJimiBackground: typeof import('./components/HaJimiBackground.vue')['default']
     HeaderBar: typeof import('./components/HeaderBar.vue')['default']
+    NavigationBar: typeof import('./components/NavigationBar.vue')['default']
     NButton: typeof import('naive-ui')['NButton']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
     NIcon: typeof import('naive-ui')['NIcon']

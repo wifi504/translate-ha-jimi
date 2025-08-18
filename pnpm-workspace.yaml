@@ -1,3 +1,4 @@
 packages:
   - frontend-v2
   - frontend-next
+  - js-sdk/*

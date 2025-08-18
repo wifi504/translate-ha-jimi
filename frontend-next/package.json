@@ -12,6 +12,7 @@
     "generate-vue-routes": "npx tsx ../scripts/generate-routes.ts"
   },
   "dependencies": {
+    "hayalib": "workspace:*",
     "pinia": "^3.0.3",
     "vue": "^3.5.17",
     "vue-router": "4"

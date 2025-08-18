@@ -2,6 +2,7 @@
   <n-config-provider :theme-overrides="themeOverrides">
     <n-message-provider>
       <header-bar />
+      <navigation-bar />
       <router-view />
       <foot-note />
     </n-message-provider>

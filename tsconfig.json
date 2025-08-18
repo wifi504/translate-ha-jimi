@@ -26,7 +26,7 @@
   },
   "files": [],
   "exclude": [
-    "java-api",
-    "python-api"
+    "java-sdk",
+    "python-sdk"
   ]
 }

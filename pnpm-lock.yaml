@@ -71,6 +71,9 @@ importers:
 
   frontend-next:
     dependencies:
+      hayalib:
+        specifier: workspace:*
+        version: link:../js-sdk/hayalib
       pinia:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))
@@ -101,6 +104,14 @@ importers:
       vue-router:
         specifier: '4'
         version: 4.5.1(vue@3.5.18(typescript@5.8.3))
+
+  js-sdk/encoder: {}
+
+  js-sdk/hayalib:
+    dependencies:
+      '@hayalib/encoder':
+        specifier: workspace:*
+        version: link:../encoder
 
 packages:
 

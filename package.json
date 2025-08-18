@@ -9,7 +9,9 @@
     "build": "pnpm --filter fronted-next build",
     "preview": "pnpm --filter fronted-next preview",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "build:hayalib": "pnpm --filter ./js-sdk/* build",
+    "publish:hayalib": "pnpm -r --filter ./js-sdk/* publish --access public --no-git-checks --registry=https://registry.npmjs.org"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.17.0",
