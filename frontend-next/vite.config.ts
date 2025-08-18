@@ -87,7 +87,7 @@ function themeCSS(): Plugin {
       const outPath = path.resolve(process.cwd(), './src/assets/style/theme-define.css')
       fs.mkdirSync(path.dirname(outPath), { recursive: true })
       fs.writeFileSync(outPath, css, 'utf-8')
-      console.log('✨ themeDefine.css 已生成')
+      console.log('✨ theme-define.css 已生成')
     },
   }
 }
