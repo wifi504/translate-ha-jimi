@@ -93,8 +93,8 @@ onUnmounted(() => {
 .foot-container {
   color: var(--background-color);
   background-color: var(--primary-color-dark);
-  font-size: var(--font-size-normal);
-  padding: 25px 0;
+  font-size: var(--font-size-small);
+  padding: 25px 50px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -111,7 +111,7 @@ onUnmounted(() => {
     .git-commit {
       span {
         position: relative;
-        top: calc(var(--font-size-normal) * -0.1);
+        top: calc(var(--font-size-small) * -0.1);
       }
     }
   }

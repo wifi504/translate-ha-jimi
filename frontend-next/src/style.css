@@ -1,17 +1,7 @@
 @import "assets/style/normalize.css";
 
 /* root 声明全局CSS变量，实际值会动态注入 */
-:root {
-  --primary-color: none;
-  --primary-color-light: none;
-  --primary-color-dark: none;
-  --background-color: none;
-  --background-color-light: none;
-  --background-color-dark: none;
-  --font-size-normal: none;
-  --font-size-small: none;
-  --font-size-large: none;
-}
+@import "assets/style/theme-define.css";
 
 body {
   background-color: var(--background-color);

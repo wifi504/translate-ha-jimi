@@ -18,7 +18,7 @@ defineProps<{
 a {
   text-decoration: none;
   color: var(--background-color);
-  font-size: var(--font-size-normal);
+  font-size: var(--font-size-small);
 
   &:hover, &:active {
     color: var(--background-color-light);
@@ -32,11 +32,11 @@ a {
   }
 
   .icon {
-    width: var(--font-size-large);
-    height: var(--font-size-large);
+    width: calc(var(--font-size-small) * 1.3);
+    height: calc(var(--font-size-small) * 1.3);
     display: inline-block;
     position: relative;
-    top: calc(var(--font-size-normal) * 0.2);
+    top: calc(var(--font-size-small) * 0.2);
 
     &::v-deep(svg) {
       display: block;
