@@ -1,10 +1,10 @@
 {
-  "name": "hayalib",
-  "version": "0.0.9",
+  "name": "@hayalib/compressor",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "哈基密文 SDK",
+  "description": "哈基压缩器",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -20,7 +20,6 @@
     "publish:only": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org"
   },
   "dependencies": {
-    "@hayalib/compressor": "workspace:*",
-    "@hayalib/encoder": "workspace:*"
+    "pako": "^2.1.0"
   }
 }

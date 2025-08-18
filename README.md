@@ -36,6 +36,11 @@
 ### 待实现功能清单：
 
 - [ ] JavaScript SDK (hayalib库)
+  - [x] 哈基编解码器
+  - [x] 哈基压缩器
+  - [ ] 哈基加密器
+  - [ ] hayalib及其分包的 `README.md`
+
 - [ ] Next版本全新前端
   - [ ] 能自适应的banner
   - [ ] 全局的404页面

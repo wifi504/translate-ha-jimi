@@ -4,7 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "哈基密文编解码器",
+  "description": "哈基编解码器",
   "exports": {
     ".": {
       "types": "./src/index.ts",

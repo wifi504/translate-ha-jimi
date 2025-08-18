@@ -5,11 +5,18 @@
 </template>
 
 <script setup lang="ts">
-import { encoder } from 'hayalib'
+import { compressor, encoder } from 'hayalib'
 
-console.log(encoder.encode(new TextEncoder().encode('你好呀'), '窝勒个豆'))
+const test = '这是一段测试的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的文本'
+console.log(test)
 
-console.log(new TextDecoder().decode(encoder.decode('哈基米服都瘦帽慢都帽前引哦吗吉利')))
+let temp: any = compressor.compress(test)
+temp = encoder.encode(temp, '哈基密语')
+console.log('编码后：', temp)
+
+temp = encoder.decode(temp)
+temp = compressor.decompress(temp)
+console.log('解码后：', temp)
 </script>
 
 <style scoped lang="less">

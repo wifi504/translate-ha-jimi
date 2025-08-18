@@ -105,10 +105,19 @@ importers:
         specifier: '4'
         version: 4.5.1(vue@3.5.18(typescript@5.8.3))
 
+  js-sdk/compressor:
+    dependencies:
+      pako:
+        specifier: ^2.1.0
+        version: 2.1.0
+
   js-sdk/encoder: {}
 
   js-sdk/hayalib:
     dependencies:
+      '@hayalib/compressor':
+        specifier: workspace:*
+        version: link:../compressor
       '@hayalib/encoder':
         specifier: workspace:*
         version: link:../encoder
