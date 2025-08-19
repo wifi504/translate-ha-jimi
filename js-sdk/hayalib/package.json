@@ -23,6 +23,7 @@
     "@hayalib/compressor": "workspace:*",
     "@hayalib/encoder": "workspace:*",
     "@hayalib/encryptor": "workspace:*",
+    "@hayalib/files": "workspace:*",
     "@hayalib/hajihash": "workspace:*",
     "@hayalib/utils": "workspace:*"
   }

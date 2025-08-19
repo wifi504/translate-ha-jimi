@@ -126,6 +126,24 @@ importers:
         specifier: ^0.7.15
         version: 0.7.15
 
+  js-sdk/files:
+    dependencies:
+      '@hayalib/compressor':
+        specifier: workspace:*
+        version: link:../compressor
+      '@hayalib/encoder':
+        specifier: workspace:*
+        version: link:../encoder
+      '@hayalib/encryptor':
+        specifier: workspace:*
+        version: link:../encryptor
+      '@hayalib/utils':
+        specifier: workspace:*
+        version: link:../utils
+      workerpool:
+        specifier: ^9.3.3
+        version: 9.3.3
+
   js-sdk/hajihash:
     dependencies:
       js-sha3:
@@ -143,6 +161,9 @@ importers:
       '@hayalib/encryptor':
         specifier: workspace:*
         version: link:../encryptor
+      '@hayalib/files':
+        specifier: workspace:*
+        version: link:../files
       '@hayalib/hajihash':
         specifier: workspace:*
         version: link:../hajihash
@@ -150,7 +171,11 @@ importers:
         specifier: workspace:*
         version: link:../utils
 
-  js-sdk/utils: {}
+  js-sdk/utils:
+    dependencies:
+      '@hayalib/encoder':
+        specifier: workspace:*
+        version: link:../encoder
 
 packages:
 
@@ -2146,6 +2171,9 @@ packages:
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
     engines: {node: '>=0.10.0'}
+
+  workerpool@9.3.3:
+    resolution: {integrity: sha512-slxCaKbYjEdFT/o2rH9xS1hf4uRDch1w7Uo+apxhZ+sf/1d9e0ZVkn42kPNGP2dgjIx6YFvSevj0zHvbWe2jdw==}
 
   xml-name-validator@4.0.0:
     resolution: {integrity: sha512-ICP2e+jsHvAj2E2lIHxa5tjXRlKDJo4IdvPvCXbXQGdzSfmSpNVyIKMvoZHjDY9DP0zV17iI85o90vRFXNccRw==}
@@ -4300,6 +4328,8 @@ snapshots:
       isexe: 2.0.0
 
   word-wrap@1.2.5: {}
+
+  workerpool@9.3.3: {}
 
   xml-name-validator@4.0.0: {}
 
