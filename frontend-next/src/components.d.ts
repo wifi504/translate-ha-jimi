@@ -8,19 +8,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Background: typeof import('./components/Background.vue')['default']
     FootALink: typeof import('./components/foot-note/FootALink.vue')['default']
     FootNote: typeof import('./components/foot-note/FootNote.vue')['default']
-    HaJimiBackground: typeof import('./components/HaJimiBackground.vue')['default']
     HeaderBar: typeof import('./components/HeaderBar.vue')['default']
     NavigationBar: typeof import('./components/NavigationBar.vue')['default']
-    NButton: typeof import('naive-ui')['NButton']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
-    NIcon: typeof import('naive-ui')['NIcon']
     NMessageProvider: typeof import('naive-ui')['NMessageProvider']
     NotFound: typeof import('./components/NotFound.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    ViAntdAccountBookTwotone: typeof import('@vicons/antd')['AccountBookTwotone']
   }
 }

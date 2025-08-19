@@ -111,7 +111,17 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0
 
-  js-sdk/encoder: {}
+  js-sdk/encoder:
+    dependencies:
+      '@hayalib/hajihash':
+        specifier: workspace:*
+        version: link:../hajihash
+
+  js-sdk/hajihash:
+    dependencies:
+      js-sha3:
+        specifier: ^0.9.3
+        version: 0.9.3
 
   js-sdk/hayalib:
     dependencies:
@@ -121,6 +131,9 @@ importers:
       '@hayalib/encoder':
         specifier: workspace:*
         version: link:../encoder
+      '@hayalib/hajihash':
+        specifier: workspace:*
+        version: link:../hajihash
 
 packages:
 
@@ -1405,6 +1418,9 @@ packages:
 
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
+
+  js-sha3@0.9.3:
+    resolution: {integrity: sha512-BcJPCQeLg6WjEx3FE591wVAevlli8lxsxm9/FzV4HXkV49TmBH38Yvrpce6fjbADGMKFrBMGTqrVz3qPIZ88Gg==}
 
   js-yaml@4.1.0:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
@@ -3382,6 +3398,8 @@ snapshots:
   is-what@4.1.16: {}
 
   isexe@2.0.0: {}
+
+  js-sha3@0.9.3: {}
 
   js-yaml@4.1.0:
     dependencies:

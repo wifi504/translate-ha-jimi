@@ -1,3 +1,4 @@
+import { checkWord, verifyCheckWord } from '@hayalib/hajihash'
 /**
  * 哈基编解码器
  *
@@ -130,14 +131,25 @@ export function encode(bytes: Uint8Array, prefix?: string): string {
     pf = prefix
   }
   // 2. 编码
+  let result = encodeByDictionary(bytes)
+  // 3. 装饰
+  result = decorateHaJimi(result)
+  // 4. 拼接前缀
+  result = pf + result
+  // 5. 追加校验位
+  result += encodeByDictionary(checkWord(result))
+  return result
+}
+
+/**
+ * 基于对照字典编码
+ */
+function encodeByDictionary(bytes: Uint8Array): string {
   let result = ''
   for (const b of bytes) {
     result += encodeDictionary[b]
   }
-  // 3. 装饰
-  result = decorateHaJimi(result)
-  // 4. 拼接前缀
-  return pf + result
+  return result
 }
 
 /**
@@ -146,11 +158,30 @@ export function encode(bytes: Uint8Array, prefix?: string): string {
  * @param text 哈基密文
  */
 export function decode(text: string): Uint8Array {
-  // 1. 摘掉装饰
-  const rawText = filterCommonChar(text, encodeDictionary.join(''))
-  // 2. 解码
+  // 1. 验证哈基密文
+  const content = text.substring(0, text.length - 2)
+  const verify = text.substring(text.length - 2)
+  const isValid = (() => {
+    try {
+      return verifyCheckWord(content, decodeByDictionary(verify))
+    }
+    catch {
+      return false
+    }
+  })()
+  if (!isValid) throw new Error('哈基密文语法不正确！')
+  // 2. 摘掉装饰
+  const rawText = filterCommonChar(content, encodeDictionary.join(''))
+  // 3. 解码
+  return decodeByDictionary(rawText)
+}
+
+/**
+ * 基于对照字典解码
+ */
+function decodeByDictionary(text: string): Uint8Array {
   const arr: number[] = []
-  for (const char of rawText) {
+  for (const char of text) {
     const index = decodeDictionary.get(char)
     if (index === undefined) {
       throw new Error(`无法解码字符"${char}"，请确保配置了正确的编解码对照字典！`)

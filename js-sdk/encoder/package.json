@@ -18,5 +18,8 @@
   "scripts": {
     "build": "tsc",
     "publish:only": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org"
+  },
+  "dependencies": {
+    "@hayalib/hajihash": "workspace:*"
   }
 }
