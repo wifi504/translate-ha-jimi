@@ -7,7 +7,7 @@ import { checkWord, verifyCheckWord } from '@hayalib/hajihash'
  * Create Time 2025/8/18_21:25
  */
 
-const BASE_WORDS = '一十人入八儿九刀力又小了厂卜几丁七乃万才寸下上口土士大女子也己已巳干工弋三于亏丈夫天无元云专扎艺木五支厅不太犬区历尤友匹车巨牙屯比互切瓦止少日中冈贝内水见午牛手毛气升长仁什片仆化仇币仍仅斤爪反介父从今凶分乏公仓月氏勿欠风丹匀乌凤勾文六方火为斗忆订计户认心尺引丑巴孔队办以允予劝双你我他这里外前后东来去有是非对错好坏高矮胖瘦短远近快慢早晚明昨年时地图和同跟与或及在再就还更最很极常都全总只单独特每各别另其怎因果间旁边关张合收存放给拿送接交换买卖钱财物品用具衣服帽鞋袜裤衫裙被枕床椅桌凳柜箱门窗墙房屋家园校场道街巷桥'
+const BASE_WORDS = '一十人入八儿九刀力又小了厂卜几丁七乃万才寸下上口土士大女子也己已巳干工弋三于亏丈夫天无元云专扎艺木五支厅不太犬区历尤友匹车巨牙屯比互切瓦止少日中冈贝内水见午牛手毛气升长仁什片仆化仇币仍仅斤爪反介父从今凶分乏公仓月氏勿欠风丹匀乌凤勾书六方火为斗忆订计户认心尺引丑巴孔队办以允予劝双你我他这里外前后东来去有是非对错好坏高矮胖瘦短远近快慢早晚明昨年时地图和同跟与或及在再就还更最很极常都全总只单独特每各别另其怎因果间旁边关张合收存放给拿送接交换买卖钱财物品用具衣服帽鞋袜裤衫裙被枕床椅桌凳柜箱门窗墙房屋家园校场道街巷桥'
 const DECORATION_WORDS = '哈基米|那没撸多|阿西噶压|库路曼波|哦吗吉利|南北绿豆|椰奶龙'
 
 // 编码对照字典
@@ -52,34 +52,42 @@ function filterCommonChar(str: string, target: string): string {
 function decorateHaJimi(text: string): string {
   const chars = text.split('')
   const insertions: { pos: number, fragment: string }[] = []
-  // 插入开头
+  // 开头插入
   insertions.push({
     pos: 0,
     fragment: decoration[Math.floor(Math.random() * decoration.length)],
   })
-  // 中间插入，按间隔 5~15 插入
+  // 中间插入
   let i = 0
   while (i + 5 < chars.length) {
-    const step = Math.floor(Math.random() * 11) + 5 // [5, 15]
+    const step = Math.floor(Math.random() * 11) + 5 // [5,15]
     i += step
-    if (i >= chars.length - 5)
-      break // 剩下不足5个就不插
+    if (i >= chars.length - 5) break
     insertions.push({
       pos: i,
       fragment: decoration[Math.floor(Math.random() * decoration.length)],
     })
   }
-  // 插入结尾
+  // 结尾插入
   insertions.push({
     pos: chars.length,
     fragment: decoration[Math.floor(Math.random() * decoration.length)],
   })
-  // 从后往前插，避免位置错乱
-  insertions.sort((a, b) => b.pos - a.pos)
-  for (const { pos, fragment } of insertions) {
-    chars.splice(pos, 0, fragment)
+  // 按位置排序升序
+  insertions.sort((a, b) => a.pos - b.pos)
+  const result: string[] = []
+  let insertIndex = 0
+  for (let j = 0; j <= chars.length; j++) {
+    // 插入当前位置的装饰
+    while (insertIndex < insertions.length && insertions[insertIndex].pos === j) {
+      result.push(insertions[insertIndex].fragment)
+      insertIndex++
+    }
+    if (j < chars.length) {
+      result.push(chars[j])
+    }
   }
-  return chars.join('')
+  return result.join('')
 }
 
 /**

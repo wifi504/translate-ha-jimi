@@ -1,10 +1,10 @@
 {
-  "name": "hayalib",
+  "name": "@hayalib/utils",
   "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "哈基密文 SDK",
+  "description": "哈基工具",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -18,12 +18,5 @@
   "scripts": {
     "build": "tsc",
     "publish:only": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org"
-  },
-  "dependencies": {
-    "@hayalib/compressor": "workspace:*",
-    "@hayalib/encoder": "workspace:*",
-    "@hayalib/encryptor": "workspace:*",
-    "@hayalib/hajihash": "workspace:*",
-    "@hayalib/utils": "workspace:*"
   }
 }

@@ -3,29 +3,26 @@ import pako from 'pako'
  * 哈基压缩器
  *
  * @author WIFI连接超时
- * @version 1.0
+ * @version 1.1
  * Create Time 2025/8/18_23:13
  */
 
 /**
- * 压缩输入（支持 string 或 Uint8Array）
+ * 压缩
  *
- * @param input  string 会转成 Uint8Array 再压缩；Uint8Array 会直接压缩
- * @return 压缩后的Uint8Array
+ * @param data 被压缩的数据
+ * @return 压缩后的数据
  */
-export function compress(input: string | Uint8Array): Uint8Array {
-  const data = typeof input === 'string' ? new TextEncoder().encode(input) : input
+export function compress(data: Uint8Array): Uint8Array {
   return pako.deflate(data)
 }
 
 /**
- * 解压输入（支持输出 string 或 Uint8Array）
+ * 解压
  *
  * @param data 被解压的数据
- * @param raw 若传入 raw=true，则返回 Uint8Array
- * @return 默认返回解压后的字符串
+ * @return 解压后的数据
  */
-export function decompress(data: Uint8Array, raw?: boolean): string | Uint8Array {
-  const inflated = pako.inflate(data)
-  return raw ? inflated : new TextDecoder().decode(inflated)
+export function decompress(data: Uint8Array): Uint8Array {
+  return pako.inflate(data)
 }

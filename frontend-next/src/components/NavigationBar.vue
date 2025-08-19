@@ -1,26 +1,60 @@
 <template>
   <div>
     导航栏
+    <n-upload
+      ref="uploadRef"
+      :max="1"
+      :custom-request="customUpload"
+      file-list-style="display: none;"
+    >
+      <n-upload-dragger>
+        上传
+      </n-upload-dragger>
+    </n-upload>
+    <n-button @click="down()">
+      下载
+    </n-button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { compressor, encoder, hajihash } from 'hayalib'
+import type { UploadCustomRequestOptions } from 'naive-ui'
+import { compressor, encoder, utils } from 'hayalib'
+import { ref } from 'vue'
 
-const test = '这是一段测试的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的很长的文本'
-console.log(test)
+function down() {
+  const text = utils.stringToUint8Array('123456我喜欢你')
+  const comp = compressor.compress(text)
+  utils.downloadFile(comp, '测试.txt')
+}
 
-let temp: any = compressor.compress(test)
-temp = encoder.encode(temp, '哈基密语')
-console.log('编码后：', temp)
+const uploadRef = ref()
 
-temp = '哈基密语椰奶龙斗坏计与尺鞋及库路曼波士被胖枕仓斗就丹被及图钱艺拿手阿西噶压认牙时帽衫全这是长屋丁女椰奶龙别及月床关鞋地十一道袜晚亏哦吗吉利贝上'
-temp = encoder.decode(temp)
-temp = compressor.decompress(temp)
-console.log('解码后：', temp)
+async function customUpload(options: UploadCustomRequestOptions) {
+  const file = options.file.file as File
+  console.log(file)
+  const buf = await file.arrayBuffer()
+  console.log(buf)
 
-console.log('sha256: ', hajihash.sha256(temp))
-console.log('checkWord: ', hajihash.checkWord(temp))
+  uploadRef.value.clear()
+
+  if (file.name !== '基密文件.txt') {
+    utils.downloadFile(
+      utils.stringToUint8Array(
+        encoder.encode(compressor.compress(new Uint8Array(buf)), '基密文件'),
+      ),
+      '基密文件.txt',
+      { filename: file.name },
+    )
+  }
+  else {
+    const unpack = utils.unpackFile(new Uint8Array(buf))
+    utils.downloadFile(
+      compressor.decompress(encoder.decode(utils.uint8ArrayToString(unpack.payload))),
+      unpack.metadata.filename,
+    )
+  }
+}
 </script>
 
 <style scoped lang="less">
