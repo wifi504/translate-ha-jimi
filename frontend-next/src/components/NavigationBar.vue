@@ -8,7 +8,8 @@
       file-list-style="display: none;"
     >
       <n-upload-dragger>
-        上传{{ progress }}
+        上传
+        <n-progress :percentage="progress" />
       </n-upload-dragger>
     </n-upload>
   </div>
@@ -24,7 +25,7 @@ const progress = ref<number>(0)
 
 async function handleUpload(options: UploadCustomRequestOptions) {
   if (options.file.file) {
-    await files.handleFileUpload(options.file.file, null, progress)
+    await files.handleFileUpload(options.file.file, new Uint8Array(32), p => progress.value = p)
     uploadRef.value.clear()
   }
 }

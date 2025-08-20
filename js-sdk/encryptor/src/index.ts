@@ -1,4 +1,5 @@
 import sodium from 'libsodium-wrappers'
+import { EncryptClient } from './worker/encrypt-client'
 /**
  * 哈基密语端到端加密器
  *
@@ -124,3 +125,5 @@ export function decrypt(secret: Secret, key: Uint8Array): Uint8Array {
     key,
   )
 }
+
+export { EncryptClient }

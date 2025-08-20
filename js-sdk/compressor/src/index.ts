@@ -1,4 +1,5 @@
 import pako from 'pako'
+import { CompressClient } from './worker/compress-client'
 /**
  * 哈基压缩器
  *
@@ -26,3 +27,5 @@ export function compress(data: Uint8Array): Uint8Array {
 export function decompress(data: Uint8Array): Uint8Array {
   return pako.inflate(data)
 }
+
+export { CompressClient }

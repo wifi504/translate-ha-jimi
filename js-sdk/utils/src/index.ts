@@ -44,7 +44,7 @@ export function hexToUint8Array(hex: string): Uint8Array {
   if (hex.length % 2 !== 0) throw new Error('Invalid hex string')
   const arr = new Uint8Array(hex.length / 2)
   for (let i = 0; i < hex.length; i += 2) {
-    arr[i / 2] = Number.parseInt(hex.substring(i, 2), 16)
+    arr[i / 2] = Number.parseInt(hex.substring(i, i + 2), 16)
   }
   return arr
 }
@@ -67,4 +67,26 @@ export function objectToUint8Array(obj: any): Uint8Array {
 export function uint8ArrayToObject(arr: Uint8Array): any {
   const json = new TextDecoder().decode(arr)
   return JSON.parse(json)
+}
+
+/**
+ * 合并多个 Uint8Array
+ *
+ * @param chunks Uint8Array[]
+ */
+export function mergeUint8Arrays(chunks: Uint8Array[]): Uint8Array {
+  // 1. 计算总长度
+  const totalLength = chunks.reduce((sum, arr) => sum + arr.length, 0)
+
+  // 2. 创建一个新 Uint8Array
+  const merged = new Uint8Array(totalLength)
+
+  // 3. 逐个拷贝
+  let offset = 0
+  for (const arr of chunks) {
+    merged.set(arr, offset)
+    offset += arr.length
+  }
+
+  return merged
 }

@@ -20,6 +20,7 @@
     "publish:only": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org"
   },
   "dependencies": {
-    "pako": "^2.1.0"
+    "pako": "^2.1.0",
+    "@hayalib/utils": "workspace:*"
   }
 }

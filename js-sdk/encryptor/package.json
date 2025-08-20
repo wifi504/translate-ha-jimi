@@ -20,7 +20,7 @@
     "publish:only": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org"
   },
   "dependencies": {
-    "@stablelib/chacha": "^2.0.1",
-    "libsodium-wrappers": "^0.7.15"
+    "libsodium-wrappers": "^0.7.15",
+    "@hayalib/utils": "workspace:*"
   }
 }

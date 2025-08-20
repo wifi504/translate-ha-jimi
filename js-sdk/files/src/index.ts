@@ -1,7 +1,7 @@
-/* eslint-disable unused-imports/no-unused-vars */
-import { encode } from '@hayalib/encoder'
-import { stringToUint8Array } from '@hayalib/utils'
-import workerpool from 'workerpool'
+import { CompressClient } from '@hayalib/compressor'
+import { decode, encode } from '@hayalib/encoder'
+import { EncryptClient } from '@hayalib/encryptor'
+import { hexToUint8Array, stringToUint8Array, uint8ArrayToHex, uint8ArrayToString } from '@hayalib/utils'
 /**
  * 基密文件处理器
  *
@@ -14,60 +14,74 @@ import workerpool from 'workerpool'
  * 处理文件上传，判断文件是普通文件还是基密文件，处理完毕后下载
  *
  * @param file 浏览器上传的文件
- * @param sharedKey chacha20 的加密密钥，如果传 null 则纯编码
- * @param progressRef 可选传入一个 Ref 对象，执行期间会把进度实时更新
- * @param progressRef.value 响应式变量
+ * @param sharedKey chacha20 的加密密钥，如果传 null 则纯压缩
+ * @param onProgress 可选对进度回调
  */
-export function handleFileUpload(file: File, sharedKey: Uint8Array | null, progressRef?: { value: any }) {
-  const ref = progressRef || { value: undefined }
-  ref.value = 0
+export function handleFileUpload(file: File, sharedKey: Uint8Array | null, onProgress?: (percent: number) => void) {
   if (getFileExtension(file.name) === 'hjm') {
-    return handleHaJimiFile(file, sharedKey, ref)
+    return handleHaJimiFile(file, sharedKey, onProgress)
   }
   else {
-    return handleNormalFile(file, sharedKey, ref)
+    return handleNormalFile(file, sharedKey, onProgress)
   }
 }
 
-// TODO 继续把文件处理的多线程实现做完
 // 把普通的文件转换成基密文件
-async function handleNormalFile(file: File, sharedKey: Uint8Array | null, progressRef: { value: any }) {
-  // 对于meta，目前只需要保留原文件名
-  const meta = encode(stringToUint8Array(JSON.stringify({ fileName: file.name })), '基密文件')
-  const metaData = stringToUint8Array(meta)
-  // 对于payload，先把File分片，然后逐个处理（压缩->加密?），直接写
-  const pool = workerpool.pool()
-  await pool.terminate()
+async function handleNormalFile(file: File, sharedKey: Uint8Array | null, onProgress?: (percent: number) => void) {
+  let totalPercent: number = 0
+  // 对于meta，目前只需要保留原文件名，可能还有 header
+  const meta = { fileName: file.name, header: '' }
+  // 对于payload，先把File分片，然后逐个处理（压缩->加密?）
+  const totalProgress = file.size
+  const compressClient = new CompressClient('compress', (progress) => {
+    totalPercent = Math.min(100, 100 * (progress / totalProgress)) * 0.8
+    if (onProgress) onProgress(totalPercent)
+  })
+  let payload = await compressClient.handleFile(file)
+  compressClient.terminate()
+  if (sharedKey) {
+    const encryptClient = new EncryptClient('encrypt', (progress) => {
+      totalPercent = Math.min(100, 100 * (progress / payload.length)) * 0.2 + 80
+      if (onProgress) onProgress(totalPercent)
+    })
+    const header = await encryptClient.initEncrypt(sharedKey)
+    meta.header = uint8ArrayToHex(header)
+    console.log('加密Header：', header, meta.header)
+    payload = await encryptClient.handleData(payload)
+    encryptClient.terminate()
+  }
+  const metaStr = encode(stringToUint8Array(JSON.stringify(meta)), '基密文件')
+  const metaData = stringToUint8Array(metaStr)
+  downloadFile(packData(payload, metaData), '基密文件.hjm')
 }
 
 // 把基密文件转换成普通的文件
-async function handleHaJimiFile(file: File, sharedKey: Uint8Array | null, progressRef: { value: any }) {
-
+async function handleHaJimiFile(file: File, sharedKey: Uint8Array | null, onProgress?: (percent: number) => void) {
+  const haJiFile = unpackData(new Uint8Array(await file.arrayBuffer()))
+  const meta = JSON.parse(uint8ArrayToString(decode(uint8ArrayToString(haJiFile.metadata))))
+  console.log(meta)
+  console.log('解密Header：', meta, hexToUint8Array(meta.header))
+  const totalProgress = haJiFile.payload.length
+  let payload = haJiFile.payload
+  if (sharedKey) {
+    const decryptClient = new EncryptClient('decrypt', (progress) => {
+      if (onProgress) onProgress(Math.min(100, 100 * (progress / totalProgress)))
+    })
+    decryptClient.initDecrypt(sharedKey, hexToUint8Array(meta.header))
+    payload = await decryptClient.handleData(payload)
+    decryptClient.terminate()
+  }
+  const decompressClient = new CompressClient('decompress', (progress) => {
+    if (onProgress) onProgress(Math.min(100, 100 * (progress / totalProgress)))
+  })
+  payload = await decompressClient.handleData(payload)
+  decompressClient.terminate()
+  if (!payload || payload.length === 0) {
+    if (onProgress) onProgress(0)
+    throw new Error('解密失败！')
+  }
+  downloadFile(payload, meta.fileName)
 }
-
-/**
- 测试流程
- const file = options.file.file as File
- console.log(file)
- const buf = await file.arrayBuffer()
- console.log(buf)
- uploadRef.value.clear()
- if (files.getFileExtension(file.name) !== 'hjm') {
- // 文件
- const payload = compressor.compress(new Uint8Array(buf))
- // 文件元数据
- const meta = encoder.encode(utils.stringToUint8Array(JSON.stringify({
- fileName: file.name,
- })), '基密文件')
- files.downloadFile(files.packData(payload, utils.stringToUint8Array(meta)), '基密文件.hjm')
- }
- else {
- const haJiFile = files.unpackData(new Uint8Array(buf))
- const payload = compressor.decompress(haJiFile.payload)
- const meta = JSON.parse(utils.uint8ArrayToString(encoder.decode(utils.uint8ArrayToString(haJiFile.metadata))))
- files.downloadFile(payload, meta.fileName)
- }
- */
 
 /**
  * 获取文件拓展名
@@ -75,7 +89,7 @@ async function handleHaJimiFile(file: File, sharedKey: Uint8Array | null, progre
  * @param filename 文件名
  * @return 拓展名（没有则为null）
  */
-function getFileExtension(filename: string): string | null {
+export function getFileExtension(filename: string): string | null {
   const lastDot = filename.lastIndexOf('.')
   if (lastDot === -1 || lastDot === filename.length - 1) {
     return null
@@ -136,47 +150,4 @@ function unpackData(packed: Uint8Array) {
   const payload = packed.slice(4 + metaLen)
 
   return { metadata, payload }
-}
-
-/**
- * 分片文件
- *
- * @param file File
- * @param chunkSize 分片大小
- */
-async function splitFile(file: File, chunkSize = 20 * 1024 * 1024): Promise<Uint8Array[]> {
-  const chunks: Uint8Array[] = []
-  let offset = 0
-
-  while (offset < file.size) {
-    const blob = file.slice(offset, offset + chunkSize)
-    const buffer = await blob.arrayBuffer()
-    chunks.push(new Uint8Array(buffer))
-    offset += chunkSize
-  }
-
-  return chunks
-}
-
-/**
- * 合并分片文件
- *
- * @param chunks 文件分片
- */
-function mergeChunks(chunks: { index: number, data: Uint8Array }[]): Uint8Array {
-  // 1. 按 index 排序
-  chunks.sort((a, b) => a.index - b.index)
-
-  // 2. 计算总长度
-  const totalLength = chunks.reduce((sum, c) => sum + c.data.length, 0)
-
-  // 3. 拼接
-  const result = new Uint8Array(totalLength)
-  let offset = 0
-  for (const c of chunks) {
-    result.set(c.data, offset)
-    offset += c.data.length
-  }
-
-  return result
 }
