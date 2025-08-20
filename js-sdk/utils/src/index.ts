@@ -1,3 +1,4 @@
+import { decode, encode } from '@hayalib/encoder'
 /**
  * 哈基工具
  *
@@ -89,4 +90,44 @@ export function mergeUint8Arrays(chunks: Uint8Array[]): Uint8Array {
   }
 
   return merged
+}
+
+/**
+ * 打包元数据
+ *
+ * @param payload 载荷数据
+ * @param meta 可以被JSON序列化的元数据对象
+ */
+export function packData(payload: Uint8Array, meta: any): Uint8Array {
+  // 1. 处理元数据
+  const metadata: Uint8Array = stringToUint8Array(encode(stringToUint8Array(JSON.stringify(meta))))
+  // 2. 写头部：元数据长度（4字节）
+  const header = new Uint8Array(4)
+  new DataView(header.buffer).setUint32(0, metadata.length, true)
+
+  // 3. 拼接：header + meta + payload
+  const packed = new Uint8Array(header.length + metadata.length + payload.length)
+  packed.set(header, 0)
+  packed.set(metadata, header.length)
+  packed.set(payload, header.length + metadata.length)
+
+  return packed
+}
+
+/**
+ * 解包元数据
+ *
+ * @param packed 打包数据
+ * @return 解包出来的元数据对象和载荷数据
+ */
+export function unpackData(packed: Uint8Array) {
+  const view = new DataView(packed.buffer)
+  const metaLen = view.getUint32(0, true)
+
+  const metadata = packed.slice(4, 4 + metaLen)
+  const payload = packed.slice(4 + metaLen)
+
+  const meta: any = JSON.parse(uint8ArrayToString(decode(uint8ArrayToString(metadata))))
+
+  return { meta, payload }
 }

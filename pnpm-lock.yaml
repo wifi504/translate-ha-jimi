@@ -122,9 +122,6 @@ importers:
 
   js-sdk/encryptor:
     dependencies:
-      '@hayalib/utils':
-        specifier: workspace:*
-        version: link:../utils
       libsodium-wrappers:
         specifier: ^0.7.15
         version: 0.7.15

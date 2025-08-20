@@ -113,7 +113,8 @@ export function customDictionary(dictionary: string): void {
 
 /**
  * 自定义哈基米装饰符
- * @param newDecoration
+ *
+ * @param newDecoration 一串用"|"分隔的装饰符，不能在对照字典重复
  */
 export function customDecoration(newDecoration: string): void {
   if (hasCommonChar(newDecoration, encodeDictionary.join(''))) {

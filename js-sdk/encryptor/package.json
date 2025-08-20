@@ -20,7 +20,6 @@
     "publish:only": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org"
   },
   "dependencies": {
-    "libsodium-wrappers": "^0.7.15",
-    "@hayalib/utils": "workspace:*"
+    "libsodium-wrappers": "^0.7.15"
   }
 }

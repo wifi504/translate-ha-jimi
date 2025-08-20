@@ -1,5 +1,5 @@
+import type { StateAddress } from 'libsodium-wrappers'
 import sodium from 'libsodium-wrappers'
-import { EncryptClient } from './worker/encrypt-client'
 /**
  * 哈基密语端到端加密器
  *
@@ -110,7 +110,7 @@ export function encrypt(plainData: Uint8Array, key: Uint8Array): Secret {
 }
 
 /**
- * 使用密钥进行对称加密
+ * 使用密钥解密
  *
  * @param secret 密文对象
  * @param key 密钥
@@ -126,4 +126,69 @@ export function decrypt(secret: Secret, key: Uint8Array): Uint8Array {
   )
 }
 
-export { EncryptClient }
+export type EncryptState = StateAddress
+
+/**
+ * 初始化加密流
+ *
+ * @param key 加密密钥
+ * @returns 包含初始状态和头部的对象
+ */
+export function initEncryption(key: Uint8Array): {
+  state: EncryptState
+  header: Uint8Array
+} {
+  return sodium.crypto_secretstream_xchacha20poly1305_init_push(key)
+}
+
+/**
+ * 初始化解密流
+ *
+ * @param key 解密密钥
+ * @param header 加密时生成的头部
+ * @returns 解密状态
+ */
+export function initDecryption(key: Uint8Array, header: Uint8Array): EncryptState {
+  return sodium.crypto_secretstream_xchacha20poly1305_init_pull(header, key)
+}
+
+/**
+ * 加密文件分片
+ *
+ * @param state 加密状态
+ * @param chunk 文件分片数据
+ * @param isFinal 是否为最后一个分片
+ * @returns 加密后的分片数据
+ */
+export function encryptChunk(
+  state: EncryptState,
+  chunk: Uint8Array,
+  isFinal: boolean = false,
+): Uint8Array {
+  const tag = isFinal
+    ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+    : sodium.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE
+
+  return sodium.crypto_secretstream_xchacha20poly1305_push(state, chunk, null, tag)
+}
+
+/**
+ * 解密文件分片
+ *
+ * @param state 解密状态
+ * @param encryptedChunk 加密的分片数据
+ * @returns 包含解密数据和是否为最后一个分片的对象
+ */
+export function decryptChunk(
+  state: EncryptState,
+  encryptedChunk: Uint8Array,
+): {
+  data: Uint8Array
+  isFinal: boolean
+} {
+  const messageTag = sodium.crypto_secretstream_xchacha20poly1305_pull(state, encryptedChunk)
+  if (!messageTag) throw new Error('解密失败')
+  const isFinal = messageTag.tag === sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+
+  return { data: messageTag.message, isFinal }
+}
