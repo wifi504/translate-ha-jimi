@@ -6,7 +6,6 @@
   - `@hayalib/compressor` 哈基压缩器
   - `@hayalib/encoder` 哈基编解码器
   - `@hayalib/encryptor` 哈基加密器
-  - `@hayalib/files` 基密文件处理器
   - `@hayalib/hajihash` 哈基函数
   - `@hayalib/utils` 哈基工具
 
@@ -259,19 +258,6 @@ state – 解密状态
 encryptedChunk – 加密的分片数据
 Returns:
 包含解密数据和是否为最后一个分片的对象
-
-### `@hayalib/files` 基密文件处理器
-
-#### 处理文件上传，判断文件是普通文件还是基密文件，处理完毕后下载
-
-```typescript
-export function handleFileUpload(file: File, sharedKey: Uint8Array | null, onProgress?: (percent: number) => void): Promise<void>
-```
-
-Params:
-file – 浏览器上传的文件
-sharedKey – chacha20 的加密密钥，如果传 null 则纯压缩
-onProgress – 可选对进度回调
 
 ### `@hayalib/hajihash` 哈基函数
 

@@ -1,6 +1,13 @@
-export * as compressor from '@hayalib/compressor'
-export * as encoder from '@hayalib/encoder'
-export * as encryptor from '@hayalib/encryptor'
-export * as files from '@hayalib/files'
-export * as hajihash from '@hayalib/hajihash'
-export * as utils from '@hayalib/utils'
+import * as compressor from '@hayalib/compressor'
+import * as encoder from '@hayalib/encoder'
+import * as encryptor from '@hayalib/encryptor'
+import * as hajihash from '@hayalib/hajihash'
+import * as utils from '@hayalib/utils'
+
+export {
+  compressor,
+  encoder,
+  encryptor,
+  hajihash,
+  utils,
+}

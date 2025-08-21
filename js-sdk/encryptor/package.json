@@ -5,18 +5,12 @@
     "access": "public"
   },
   "description": "哈基加密器",
-  "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts",
-      "require": "./dist/index.js"
-    }
-  },
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "watch": "tsc --watch",
     "publish:only": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org"
   },
   "dependencies": {

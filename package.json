@@ -6,12 +6,14 @@
   "description": "哈基密文加密器 Workspace",
   "scripts": {
     "dev": "pnpm --filter fronted-next dev",
-    "build": "pnpm --filter fronted-next build",
+    "build": "pnpm clear && pnpm hayalib:build && pnpm --filter fronted-next build",
     "preview": "pnpm --filter fronted-next preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "hayalib:build": "pnpm --filter ./js-sdk/* build",
-    "hayalib:publish": "pnpm -r --filter ./js-sdk/* publish --access public --no-git-checks --registry=https://registry.npmjs.org"
+    "hayalib:watch": "pnpm clear && pnpm hayalib:build && pnpm --filter ./js-sdk/* --parallel watch",
+    "hayalib:publish": "pnpm -r --filter ./js-sdk/* publish --access public --no-git-checks --registry=https://registry.npmjs.org",
+    "clear": "npx tsx ./scripts/clear-dist.ts"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.17.0",

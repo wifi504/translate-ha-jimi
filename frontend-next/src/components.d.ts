@@ -12,7 +12,6 @@ declare module 'vue' {
     FootNote: typeof import('./components/foot-note/FootNote.vue')['default']
     HeaderBar: typeof import('./components/HeaderBar.vue')['default']
     NavigationBar: typeof import('./components/NavigationBar.vue')['default']
-    NButton: typeof import('naive-ui')['NButton']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
     NMessageProvider: typeof import('naive-ui')['NMessageProvider']
     NotFound: typeof import('./components/NotFound.vue')['default']

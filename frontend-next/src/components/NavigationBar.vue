@@ -17,7 +17,6 @@
 
 <script setup lang="ts">
 import type { UploadCustomRequestOptions } from 'naive-ui'
-import { files } from 'hayalib'
 import { ref } from 'vue'
 
 const uploadRef = ref()
@@ -25,7 +24,6 @@ const progress = ref<number>(0)
 
 async function handleUpload(options: UploadCustomRequestOptions) {
   if (options.file.file) {
-    await files.handleFileUpload(options.file.file, new Uint8Array(32), p => progress.value = p)
     uploadRef.value.clear()
   }
 }
