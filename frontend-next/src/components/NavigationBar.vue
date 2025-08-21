@@ -18,12 +18,16 @@
 <script setup lang="ts">
 import type { UploadCustomRequestOptions } from 'naive-ui'
 import { ref } from 'vue'
+import { FileWorkerManager } from '@/utils/file/file-worker-manager.ts'
 
 const uploadRef = ref()
 const progress = ref<number>(0)
 
 async function handleUpload(options: UploadCustomRequestOptions) {
   if (options.file.file) {
+    console.log('上传文件')
+    const fwm = new FileWorkerManager()
+    fwm.hello('aaa')
     uploadRef.value.clear()
   }
 }
