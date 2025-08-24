@@ -8,10 +8,10 @@
     "lib": ["ES2023", "DOM"],
     "moduleDetection": "force",
     "module": "ESNext",
-    "types": ["node"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    "types": ["node"],
     "allowImportingTsExtensions": true,
 
     /* Linting */

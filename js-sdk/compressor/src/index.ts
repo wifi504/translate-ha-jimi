@@ -1,4 +1,6 @@
+import { mergeUint8Arrays } from '@hayalib/utils'
 import pako from 'pako'
+
 /**
  * 哈基压缩器
  *
@@ -70,9 +72,11 @@ export function compressChunk(
   isFinal: boolean = false,
 ) {
   if (!state.deflate) throw new Error('需要先执行 initCompression()')
+  const result: Uint8Array[] = []
+  state.deflate.onData = d => result.push(d as Uint8Array)
   const success = state.deflate.push(chunk, isFinal)
   if (!success) throw new Error(`压缩失败: ${state.deflate.msg}`)
-  return state.deflate.result as Uint8Array
+  return mergeUint8Arrays(result)
 }
 
 /**
@@ -89,7 +93,9 @@ export function decompressChunk(
   isFinal: boolean = false,
 ) {
   if (!state.inflate) throw new Error('需要先执行 initDecompression()')
+  const result: Uint8Array[] = []
+  state.inflate.onData = d => result.push(d as Uint8Array)
   const success = state.inflate.push(chunk, isFinal)
   if (!success) throw new Error(`压缩失败: ${state.inflate.msg}`)
-  return state.inflate.result as Uint8Array
+  return mergeUint8Arrays(result)
 }

@@ -12,4 +12,8 @@ export default [
     path: '/',
     component: () => import('@/views/Index.vue'),
   },
+  {
+    path: '/haji-file',
+    component: () => import('@/views/haji-file/Index.vue'),
+  },
 ] as RouteRecordRaw[]

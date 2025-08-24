@@ -1,11 +1,11 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "lib": ["ESNext", "DOM", "webworker"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    },
-    "lib": ["ESNext", "DOM","webworker"]
+    }
   },
   "include": [
     "vite.config.ts",

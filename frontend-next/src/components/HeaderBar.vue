@@ -37,6 +37,7 @@ function navigateBiliBili() {
   user-select: none;
   background: var(--background-color-light);
   height: 90px;
+  line-height: 1.2;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
   position: fixed;
   top: 0;

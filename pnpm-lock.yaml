@@ -107,6 +107,9 @@ importers:
 
   js-sdk/compressor:
     dependencies:
+      '@hayalib/utils':
+        specifier: workspace:*
+        version: link:../utils
       pako:
         specifier: ^2.1.0
         version: 2.1.0
