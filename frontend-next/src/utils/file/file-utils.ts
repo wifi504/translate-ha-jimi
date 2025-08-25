@@ -1,8 +1,6 @@
 import type ThreadPool from '@/utils/thread-pool'
 import { utils } from 'hayalib'
 
-export interface FinalFile { fileArrayBuffer: ArrayBuffer, fileName: string }
-
 /**
  * 基密文件处理器，把文件处理完成后调用浏览器下载
  *
@@ -10,14 +8,13 @@ export interface FinalFile { fileArrayBuffer: ArrayBuffer, fileName: string }
  * @param file 浏览器上传的文件
  * @param fileWorkerPool 基密文件 Worker 的线程池
  * @param sharedKey chacha20的对称密钥
- * @return FinalFile 最后返回的可以下载的文件
  */
 export async function processFile(
   id: string,
   file: File,
   fileWorkerPool: ThreadPool,
   sharedKey: Uint8Array,
-): Promise<FinalFile> {
+) {
   if (getFileExtension(file.name) === 'hjm') {
     // 判断文件类型，如果是基密文件，则解密成普通文件
     return await processHaJimiFile(id, file, fileWorkerPool, sharedKey)
@@ -29,7 +26,7 @@ export async function processFile(
 }
 
 // 处理基密文件
-async function processHaJimiFile(id: string, file: File, fileWorkerPool: ThreadPool, sharedKey: Uint8Array): Promise<FinalFile> {
+async function processHaJimiFile(id: string, file: File, fileWorkerPool: ThreadPool, sharedKey: Uint8Array) {
   // 1. 解包元数据
   const unpacked = utils.unpackData(new Uint8Array(await file.arrayBuffer()))
   const fileData: ArrayBuffer = unpacked.payload.buffer
@@ -40,15 +37,18 @@ async function processHaJimiFile(id: string, file: File, fileWorkerPool: ThreadP
     fileData,
     sharedKey,
   }, [fileData])
-  // 3. 最后返回可以下载的文件
-  return {
-    fileArrayBuffer: result,
-    fileName: unpacked.meta.fileName,
-  }
+  // 3. 下载文件
+  downloadFile(new Uint8Array(result), unpacked.meta.fileName)
+  // 4. 释放内存
+  await fileWorkerPool.submit({
+    command: 'give-up-data',
+    data: [result],
+  }, [result])
+  return unpacked.meta.fileName as string
 }
 
 // 处理普通文件
-async function processNormalFile(id: string, file: File, fileWorkerPool: ThreadPool, sharedKey: Uint8Array): Promise<FinalFile> {
+async function processNormalFile(id: string, file: File, fileWorkerPool: ThreadPool, sharedKey: Uint8Array) {
   // 1. 线程池提交 processNormalFile 任务
   const fileData = await file.arrayBuffer()
   const result: ArrayBuffer = await fileWorkerPool.submit({
@@ -59,11 +59,14 @@ async function processNormalFile(id: string, file: File, fileWorkerPool: ThreadP
   }, [fileData])
   // 2. 打包元数据
   const finalData = utils.packData(new Uint8Array(result), { fileName: file.name })
-  // 3. 最后返回可以下载的文件
-  return {
-    fileArrayBuffer: finalData.buffer as ArrayBuffer,
-    fileName: '基密文件.hjm',
-  }
+  // 3. 下载文件
+  downloadFile(finalData, '基密文件.hjm')
+  // 4. 释放内存
+  await fileWorkerPool.submit({
+    command: 'give-up-data',
+    data: [result, finalData.buffer],
+  }, [result, finalData.buffer])
+  return '基密文件.hjm'
 }
 
 /**
@@ -103,7 +106,8 @@ export function getFileExtension(filename: string): string | null {
  *
  * @param extension 拓展名
  */
-export function checkExtentionAsImage(extension: string): boolean {
+export function checkExtensionAsImage(extension: string | null): boolean {
+  if (extension === null) return false
   const images = ['jpg', 'jpeg', 'png', 'gif']
   return images.includes(extension.toLowerCase())
 }

@@ -100,7 +100,7 @@ export function mergeUint8Arrays(chunks: Uint8Array[]): Uint8Array {
  */
 export function packData(payload: Uint8Array, meta: any): Uint8Array {
   // 1. 处理元数据
-  const metadata: Uint8Array = stringToUint8Array(encode(stringToUint8Array(JSON.stringify(meta))))
+  const metadata: Uint8Array = stringToUint8Array(encode(stringToUint8Array(JSON.stringify(meta)), '基密文件'))
   // 2. 写头部：元数据长度（4字节）
   const header = new Uint8Array(4)
   new DataView(header.buffer).setUint32(0, metadata.length, true)

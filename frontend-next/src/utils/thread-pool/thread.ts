@@ -101,6 +101,8 @@ export default class Thread {
     const requestTerminateHandler = (e: MessageEvent) => {
       if (e.data && e.data.type === 'request-terminate' && e.data.terminateFlag) {
         this._worker.removeEventListener('message', requestTerminateHandler)
+        // 如果已经存在 requestTerminate，忽略本次
+        if (this._requestTerminatePromise) return
         this._logger.warn(`Worker 申请在本次任务执行完后关闭此线程${e.data.message ? `，原因是：${e.data.message}` : '！'}`)
         this.requestTerminate().then(() => {
           this._logger.info('Worker 申请的关闭线程已成功执行！')

@@ -6,14 +6,10 @@ import { defineWorker, postToMain, requestTerminate } from '@/utils/thread-pool'
 defineWorker(main)
 
 // 当前线程消耗的内存资源
-const memoryUsed: number = 0
+let memoryUsed: number = 0
 
 // 基密文件处理
 async function main(data: any) {
-  // 如果内存消耗达到阈值 2GB，我们申请完成这个任务后关闭此线程
-  if (memoryUsed >= 2 * 1024 * 1024 * 1024) {
-    requestTerminate('利用 Transfer 机制回收垃圾')
-  }
   // 处理基密文件
   if (data.command === 'processHaJimiFile') {
     return await processHaJimiFile(data.id, new Uint8Array(data.fileData), data.sharedKey)
@@ -24,7 +20,18 @@ async function main(data: any) {
   }
   // 利用 Transfer 机制回收垃圾
   if (data.command === 'give-up-data') {
-    // 什么都不做
+    if (Array.isArray(data.data)) {
+      let count: number = 0
+      data.data.forEach((d: ArrayBuffer) => {
+        memoryUsed += d.byteLength ?? 0
+        count += d.byteLength ?? 0
+      })
+      console.log('回收垃圾：', (count / 1024 / 1024).toFixed(2), 'MB')
+    }
+    else {
+      console.log('没有可回收的垃圾')
+    }
+    checkGarbageCollect()
     return null
   }
 }
@@ -35,6 +42,8 @@ async function processHaJimiFile(
   fileData: Uint8Array,
   sharedKey: Uint8Array,
 ) {
+  console.log(sharedKey)
+  memoryUsed += fileData.length
   // 1. 解密文件
   // 2. 解压文件
   const decompressState = compressor.initDecompression()
@@ -42,14 +51,15 @@ async function processHaJimiFile(
     postToMain('on-progress', { id, percent: (p).toFixed(2) })
   })
   await splitIntoChunks(fileData, 30 * 1024 * 1024, (chunk: Chunk) => {
-    const compressed = compressor.decompressChunk(
+    const decompressed = compressor.decompressChunk(
       decompressState,
       chunk.data,
       chunk.id === chunk.totalChunks - 1,
     )
+    memoryUsed += decompressed.length * 2
     decompressChunkMerger.push({
       id: chunk.id,
-      data: compressed,
+      data: decompressed,
       totalSize: chunk.totalSize,
       totalChunks: chunk.totalChunks,
       start: chunk.start,
@@ -57,6 +67,7 @@ async function processHaJimiFile(
     })
   })
   // 3. 返回最终文件
+  checkGarbageCollect()
   return (await decompressChunkMerger.getResult()).buffer
 }
 
@@ -66,6 +77,8 @@ async function processNormalFile(
   fileData: Uint8Array,
   sharedKey: Uint8Array,
 ) {
+  console.log(sharedKey)
+  memoryUsed += fileData.length + 32 * 1024 * 1024
   // 1. 压缩文件
   const compressState = compressor.initCompression()
   const compressChunkMerger = new ChunkMerger((p) => {
@@ -85,8 +98,19 @@ async function processNormalFile(
       start: chunk.start,
       end: chunk.end,
     })
+    memoryUsed += compressed.length * 2
   })
+  const compressedData = await compressChunkMerger.getResult()
   // 2. 加密文件
   // 3. 返回最终文件
-  return (await compressChunkMerger.getResult()).buffer
+  checkGarbageCollect()
+  return (compressedData).buffer
+}
+
+// 如果内存消耗达到阈值 300MB，我们申请完成这个任务后关闭此线程
+function checkGarbageCollect() {
+  console.warn('线程消耗了内存：', (memoryUsed / 1024 / 1024).toFixed(2), 'MB')
+  if (memoryUsed >= 300 * 1024 * 1024) {
+    requestTerminate('利用 Transfer 机制回收内存')
+  }
 }

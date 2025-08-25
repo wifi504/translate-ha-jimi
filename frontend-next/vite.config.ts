@@ -50,6 +50,9 @@ export default defineConfig({
   preview: {
     port: 5201,
   },
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
 })
 
 // 自动导入 vicons

@@ -28,9 +28,8 @@
 
 <script setup lang="ts">
 import type { UploadCustomRequestOptions, UploadFileInfo } from 'naive-ui'
-import type { FinalFile } from '@/utils/file/file-utils.ts'
 import { ref } from 'vue'
-import { checkExtentionAsImage, getFileExtension, processFile } from '@/utils/file/file-utils.ts'
+import { getFileExtension, processFile } from '@/utils/file/file-utils.ts'
 
 import { newFileWorker } from '@/utils/file/file-worker-builder.ts'
 import ThreadPool from '@/utils/thread-pool'
@@ -57,25 +56,16 @@ const pool = new ThreadPool(newFileWorker, [
       })
     },
   },
-], 2, false)
+], 1, false)
 pool.subscribePoolSize((size: number) => poolSize.value = size)
 pool.subscribeTaskQueueSize((size: number) => taskQueueSize.value = size)
 
 async function handleUpload(options: UploadCustomRequestOptions) {
   if (options.file.file) {
-    processFile(options.file.id, options.file.file, pool, new Uint8Array(32)).then((finalFile: FinalFile) => {
+    processFile(options.file.id, options.file.file, pool, new Uint8Array(32)).then((newFileName: string) => {
       fileList.value.forEach((file) => {
         if (file.id === options.file.id) {
-          const extension = getFileExtension(finalFile.fileName)
-          const blob = new Blob([finalFile.fileArrayBuffer], { type: 'application/octet-stream' })
-          file.url = URL.createObjectURL(blob)
-          if (checkExtentionAsImage(extension)) {
-            file.thumbnailUrl = file.url
-          }
-          else {
-            file.thumbnailUrl = ''
-          }
-          file.name = `${file.name} 已经成功${extension === 'hjm' ? '加密成' : '解密回'} ${finalFile.fileName}`
+          file.name = `${file.name} 已经成功${getFileExtension(newFileName) === 'hjm' ? '加密成' : '解密回'} ${newFileName}`
           file.status = 'finished'
         }
       })

@@ -105,7 +105,7 @@ export function receiveEvent(
         return
       }
     }
-    if (!event.data.endFlag && !event.data.defineFlag) {
+    if (!event.data.endFlag && !event.data.defineFlag && !event.data.terminateFlag) {
       logger.warn('接收到未声明处理的事件：', event)
     }
   }

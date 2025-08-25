@@ -178,11 +178,12 @@ export default class ThreadPool {
       )
       this.threadPoolAdd(thread)
       // 启动线程（线程去阻塞队列找任务）
-      thread.start().catch((e) => {
-        this._logger.error('线程池在启动线程阶段捕获到了意料之外的线程异常！\n', e)
-        thread.terminate()
-        this.initPool()
-      })
+      thread.start()
+        .catch(e => this._logger.error('线程池在启动线程阶段捕获到了意料之外的线程异常！\n', e))
+        .finally(() => {
+          thread.terminate()
+          this.initPool()
+        })
     }
     // 3. 通知超出目标数量的线程销毁自己
     const overflow = this._threadPool.size - this._targetPoolSize
