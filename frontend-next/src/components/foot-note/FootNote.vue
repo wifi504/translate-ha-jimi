@@ -21,8 +21,7 @@
     <!-- 第三行块：版权信息、版本信息 -->
     <div class="block">
       <span>
-        Copyleft 🄯 {{ getYearSince() }} 哈基密文加密器 v{{ version }}
-      </span>
+        Copyright (C) {{ getYearSince() }} 哈基密文加密器 v{{ version }}. Licensed under GPLv3      </span>
       <span class="git-commit">
         <span>(</span>
         <foot-a-link :icon-svg="commitSvg" :href="`https://github.com/wifi504/translate-ha-jimi/commit/${gitSha}`">
@@ -31,7 +30,7 @@
         <span>)</span>
       </span>
       <span>
-        保留自由权利 All Freedom reserved.
+        All Rights Reversed.
       </span>
     </div>
     <!-- 第四行块：备案信息、额外信息 -->
