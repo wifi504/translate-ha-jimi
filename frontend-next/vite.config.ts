@@ -16,43 +16,45 @@ const GIT_SHA = execSync('git rev-parse HEAD').toString().trim()
 const PKG_JSON = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'))
 
 // https://vite.dev/config/
-export default defineConfig({
-  base: '/hajimi/',
-  plugins: [
-    vue(),
-    Components({
-      dirs: ['src/components'],
-      extensions: ['vue'],
-      deep: true,
-      dts: 'src/components.d.ts',
-      resolvers: [
-        NaiveUiResolver(),
-        VIconsResolver(),
-      ],
-    }),
-    themeCSS(),
-  ],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
+export default defineConfig(({ command }) => {
+  return {
+    base: '/hajimi/',
+    plugins: [
+      vue(),
+      Components({
+        dirs: ['src/components'],
+        extensions: ['vue'],
+        deep: true,
+        dts: 'src/components.d.ts',
+        resolvers: [
+          NaiveUiResolver(),
+          VIconsResolver(),
+        ],
+      }),
+      themeCSS(),
+    ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+      },
     },
-  },
-  worker: {
-    format: 'es',
-  },
-  define: {
-    'import.meta.env.VITE_GIT_SHA': JSON.stringify(GIT_SHA),
-    'import.meta.env.VITE_VERSION': JSON.stringify(PKG_JSON.version),
-  },
-  server: {
-    port: 5200,
-  },
-  preview: {
-    port: 5201,
-  },
-  esbuild: {
-    drop: ['console', 'debugger'],
-  },
+    worker: {
+      format: 'es',
+    },
+    define: {
+      'import.meta.env.VITE_GIT_SHA': JSON.stringify(GIT_SHA),
+      'import.meta.env.VITE_VERSION': JSON.stringify(PKG_JSON.version),
+    },
+    server: {
+      port: 5200,
+    },
+    preview: {
+      port: 5201,
+    },
+    esbuild: {
+      drop: command === 'build' ? ['console', 'debugger'] : [],
+    },
+  }
 })
 
 // 自动导入 vicons

@@ -11,6 +11,11 @@ interface Chunk {
 }
 
 /**
+ * 合并器状态
+ */
+type MergerState = 'NEW' | 'FILLING' | 'READY' | 'EDITING'
+
+/**
  * 将数据分片并通过回调返回每个分片
  *
  * @param data 要分片的数据（File对象或Uint8Array）
@@ -84,27 +89,26 @@ async function splitIntoChunks(
  * 用于合并文件分片的类
  */
 class ChunkMerger {
-  private readonly promise: Promise<Uint8Array>
-  private resolve: (value: Uint8Array) => void = () => {}
-  private reject: (reason: Error) => void = () => {}
-  private readonly onProgress: (progress: number) => void
+  private promise!: Promise<void>
+  private resolve!: () => void
+  private reject!: (reason: Error) => void
+  onProgress: (progress: number) => void
   private totalChunks: number | null = null
   private receivedChunks: Map<number, Uint8Array> = new Map()
-  private isCompleted: boolean = false
-  private isRejected: boolean = false
+  private state: MergerState = 'NEW'
 
-  /**
-   * 创建一个ChunkMerger实例
-   *
-   * @param onProgress 进度回调函数，参数为0-100的百分比
-   */
   constructor(onProgress: (progress: number) => void) {
     this.onProgress = onProgress
-    // 初始化进度为0
     this.onProgress(0)
 
-    // 创建Promise并保存resolve和reject方法
-    this.promise = new Promise((resolve, reject) => {
+    this.refreshPromise()
+  }
+
+  /**
+   * 刷新 promise，生成新的等待对象
+   */
+  private refreshPromise() {
+    this.promise = new Promise<void>((resolve, reject) => {
       this.resolve = resolve
       this.reject = reject
     })
@@ -112,87 +116,119 @@ class ChunkMerger {
 
   /**
    * 处理一个分片
-   *
-   * @param chunk 要处理的分片
-   * @throws 如果已完成、已拒绝或分片无效则抛出错误
    */
   push(chunk: Chunk): void {
-    console.log('push了新的分片：', chunk)
-    // 检查状态
-    if (this.isCompleted) {
-      throw new Error('所有分片已处理完成，不能再添加新分片')
+    if (this.state === 'NEW') {
+      this.state = 'FILLING'
     }
-    if (this.isRejected) {
-      throw new Error('处理已失败，不能再添加新分片')
+    if (this.state !== 'FILLING') {
+      throw new Error(`当前状态为 ${this.state}，不能 push 分片`)
     }
 
     // 第一次push时初始化
     if (this.totalChunks === null) {
       this.totalChunks = chunk.totalChunks
     }
-    else {
-      // 验证分片的一致性
-      if (chunk.totalChunks !== this.totalChunks) {
-        const error = new Error(`总分片数量不一致，预期: ${this.totalChunks}, 实际: ${chunk.totalChunks}`)
-        this.reject(error)
-        this.isRejected = true
-        throw error
-      }
+    else if (chunk.totalChunks !== this.totalChunks) {
+      const error = new Error(`总分片数量不一致，预期: ${this.totalChunks}, 实际: ${chunk.totalChunks}`)
+      this.reject(error)
+      throw error
     }
 
-    // 检查分片ID是否有效
     if (chunk.id < 0 || chunk.id >= this.totalChunks!) {
       const error = new Error(`无效的分片ID: ${chunk.id}，总分片数量: ${this.totalChunks}`)
       this.reject(error)
-      this.isRejected = true
       throw error
     }
 
-    // 检查是否为重复分片
     if (this.receivedChunks.has(chunk.id)) {
       const error = new Error(`重复的分片ID: ${chunk.id}`)
       this.reject(error)
-      this.isRejected = true
       throw error
     }
 
-    // 将分片数据写入缓冲区
     this.receivedChunks.set(chunk.id, chunk.data)
 
-    // 更新进度
     const progress = (this.receivedChunks.size / this.totalChunks!) * 100
     this.onProgress(progress)
 
-    // 检查是否所有分片都已处理完成
     if (this.receivedChunks.size === this.totalChunks) {
-      this.isCompleted = true
-      let totalLength: number = 0
-      this.receivedChunks.forEach((chunk) => {
-        totalLength += chunk.length
-      })
-      const merged = new Uint8Array(totalLength)
-      let offset = 0
-      for (let i = 0; i < this.totalChunks; i++) {
-        const get = this.receivedChunks.get(i)
-        if (get) {
-          merged.set(get, offset)
-          offset += get.length
-        }
-        else {
-          throw new Error('ChunkMerger分片数据不完整，拼接失败！')
-        }
-      }
-      this.receivedChunks.clear()
-      this.resolve(merged)
+      this.state = 'READY'
+      this.resolve()
     }
   }
 
   /**
-   * 获取合并结果的Promise
-   *
-   * @returns 包含合并后数据的Promise
+   * 获取当前最新 promise
    */
-  getResult(): Promise<Uint8Array> {
+  waitForReady(): Promise<void> {
+    return this.promise
+  }
+
+  /**
+   * 合并结果
+   */
+  getResult(): Uint8Array {
+    if (this.state !== 'READY') {
+      throw new Error(`当前状态为 ${this.state}，不能执行 getResult`)
+    }
+    let totalLength = 0
+    this.receivedChunks.forEach((chunk) => {
+      totalLength += chunk.length
+    })
+    const merged = new Uint8Array(totalLength)
+    let offset = 0
+    for (let i = 0; i < this.totalChunks!; i++) {
+      const get = this.receivedChunks.get(i)
+      if (!get) {
+        throw new Error('ChunkMerger分片数据不完整，拼接失败！')
+      }
+      merged.set(get, offset)
+      offset += get.length
+    }
+    this.receivedChunks.clear()
+    return merged
+  }
+
+  /**
+   * 编辑模式
+   */
+  async foreachEdit(callback: (chunk: Chunk, edit: (chunk: Chunk) => void) => Promise<void> | void): Promise<void> {
+    if (this.state !== 'READY') {
+      throw new Error(`当前状态为 ${this.state}，不能进入 foreachEdit`)
+    }
+    this.state = 'EDITING'
+    this.refreshPromise()
+
+    const edit = (chunk: Chunk) => {
+      if (this.state !== 'EDITING') {
+        throw new Error('不在 EDITING 状态，不能 edit')
+      }
+      if (chunk.id < 0 || chunk.id >= this.totalChunks!) {
+        throw new Error(`无效的分片ID: ${chunk.id}`)
+      }
+      this.receivedChunks.set(chunk.id, chunk.data)
+
+      if (chunk.id === this.totalChunks! - 1) {
+        this.state = 'READY'
+        this.resolve()
+      }
+      this.onProgress((chunk.id / this.totalChunks!) * 100)
+    }
+
+    for (let i = 0; i < this.totalChunks!; i++) {
+      const data = this.receivedChunks.get(i)!
+      const chunk: Chunk = {
+        id: i,
+        data,
+        totalSize: data.length,
+        totalChunks: this.totalChunks!,
+        start: 0,
+        end: data.length,
+      }
+      await callback(chunk, edit)
+    }
+
     return this.promise
   }
 }

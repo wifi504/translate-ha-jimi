@@ -36,6 +36,7 @@ async function processHaJimiFile(id: string, file: File, fileWorkerPool: ThreadP
     id,
     fileData,
     sharedKey,
+    header: utils.hexToUint8Array(unpacked.meta.header),
   }, [fileData])
   // 3. 下载文件
   downloadFile(new Uint8Array(result), unpacked.meta.fileName)
@@ -58,7 +59,10 @@ async function processNormalFile(id: string, file: File, fileWorkerPool: ThreadP
     sharedKey,
   }, [fileData])
   // 2. 打包元数据
-  const finalData = utils.packData(new Uint8Array(result), { fileName: file.name })
+  const resultData = new Uint8Array(result)
+  const header = utils.uint8ArrayToHex(resultData.subarray(0, 24))
+  const content = resultData.subarray(24)
+  const finalData = utils.packData(content, { fileName: file.name, header })
   // 3. 下载文件
   downloadFile(finalData, '基密文件.hjm')
   // 4. 释放内存
