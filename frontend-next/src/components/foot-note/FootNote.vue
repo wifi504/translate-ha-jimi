@@ -21,7 +21,7 @@
     <!-- 第三行块：版权信息、版本信息 -->
     <div class="block">
       <span>
-        Copyright © {{ getYearSince() }} 哈基密文加密器 v{{ version }}
+        Copyleft 🄯 {{ getYearSince() }} 哈基密文加密器 v{{ version }}
       </span>
       <span class="git-commit">
         <span>(</span>
@@ -31,7 +31,7 @@
         <span>)</span>
       </span>
       <span>
-        版权所有 All Rights Reserved.
+        保留自由权利 All Freedom reserved.
       </span>
     </div>
     <!-- 第四行块：备案信息、额外信息 -->
