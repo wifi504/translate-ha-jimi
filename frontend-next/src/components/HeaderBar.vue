@@ -9,7 +9,7 @@
       <img class="avatar" src="@/assets/image/hjm.png" alt="LOGO">
       <div class="title">
         <span class="main">哈基密文加密器</span>
-        <span class="sub">一款离线的端到端加密&编码工具</span>
+        <span class="sub">一款开源的离线端到端加密&编码工具</span>
       </div>
       <span
         v-if="!viewportStore.isSmallScreen"
