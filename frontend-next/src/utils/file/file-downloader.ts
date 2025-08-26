@@ -1,8 +1,11 @@
 import streamSaver from 'streamsaver'
+import { newGCWorker } from '@/utils/file/worker-builder.ts'
+import ThreadPool from '@/utils/thread-pool'
 
-streamSaver.mitm = `/${import.meta.env.VITE_BASEURL}lib/streamsaver/mitm.html`
+// streamSaver.mitm = `/${import.meta.env.VITE_BASEURL}lib/streamsaver/mitm.html`
 
 export type DownloaderStatus = 'NEW' | 'WRITING' | 'CLOSE'
+const gcThreadPool = new ThreadPool(newGCWorker, [], 1)
 
 export default class FileDownloader {
   private _writableStream: WritableStream<Uint8Array>
@@ -16,6 +19,7 @@ export default class FileDownloader {
   constructor(fileName: string) {
     this._writableStream = streamSaver.createWriteStream(fileName)
     this._writer = this._writableStream.getWriter()
+    console.log('完成创建：', this)
   }
 
   get status(): DownloaderStatus {
@@ -36,6 +40,7 @@ export default class FileDownloader {
     while (this._queue.length > 0) {
       const { data, final } = this._queue.shift()!
       await this._writer.write(data)
+      setTimeout(() => gcThreadPool.submit([data.buffer], [data.buffer]).catch(e => console.error(e)), 1000)
 
       if (final) {
         await this._writer.close()

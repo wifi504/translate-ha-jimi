@@ -74,9 +74,15 @@ importers:
 
   frontend-next:
     dependencies:
-      hayalib:
+      '@hayalib/compressor':
         specifier: workspace:*
-        version: link:../js-sdk/hayalib
+        version: link:../js-sdk/compressor
+      '@hayalib/encryptor':
+        specifier: workspace:*
+        version: link:../js-sdk/encryptor
+      '@hayalib/utils':
+        specifier: workspace:*
+        version: link:../js-sdk/utils
       pinia:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))

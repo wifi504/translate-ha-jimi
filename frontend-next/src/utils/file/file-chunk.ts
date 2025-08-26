@@ -21,11 +21,13 @@ type MergerState = 'NEW' | 'FILLING' | 'READY' | 'EDITING'
  * @param data 要分片的数据（File对象或Uint8Array）
  * @param chunkSize 每个分片的大小（字节）
  * @param onChunk 每获取到一个分片时的回调函数
+ * @param offset 可选参数，向后偏移多少字节后开始读（默认0）
  */
 async function splitIntoChunks(
   data: File | Uint8Array,
   chunkSize: number,
   onChunk: (chunk: Chunk) => Promise<void>,
+  offset: number = 0,
 ): Promise<void> {
   if (chunkSize <= 0) {
     throw new Error('分片大小必须大于0')
@@ -36,13 +38,20 @@ async function splitIntoChunks(
     throw new Error('数据为空，无法分片')
   }
 
+  if (offset < 0 || offset >= totalSize) {
+    throw new Error('偏移量超出数据范围')
+  }
+
+  // 实际开始位置和可用数据长度
+  const effectiveSize = totalSize - offset
+
   // 计算总分片数量，向上取整
-  const totalChunks = Math.ceil(totalSize / chunkSize)
+  const totalChunks = Math.ceil(effectiveSize / chunkSize)
 
   if (data instanceof File) {
     // 处理File对象，使用slice方法避免一次性加载到内存
     for (let id = 0; id < totalChunks; id++) {
-      const start = id * chunkSize
+      const start = offset + id * chunkSize
       const end = Math.min(start + chunkSize, totalSize)
 
       // 从File中读取分片
@@ -56,7 +65,7 @@ async function splitIntoChunks(
       await onChunk({
         id,
         data: chunkData,
-        totalSize,
+        totalSize: effectiveSize,
         totalChunks,
         start,
         end,
@@ -66,17 +75,17 @@ async function splitIntoChunks(
   else {
     // 处理Uint8Array
     for (let id = 0; id < totalChunks; id++) {
-      const start = id * chunkSize
+      const start = offset + id * chunkSize
       const end = Math.min(start + chunkSize, totalSize)
 
       // 直接从Uint8Array中截取分片
       const chunkData = data.subarray(start, end)
 
       // 调用回调函数
-      onChunk({
+      await onChunk({
         id,
         data: chunkData,
-        totalSize,
+        totalSize: effectiveSize,
         totalChunks,
         start,
         end,

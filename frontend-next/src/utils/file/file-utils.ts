@@ -1,5 +1,5 @@
 import type ThreadPool from '@/utils/thread-pool'
-import { utils } from 'hayalib'
+import { hexToUint8Array, packData, uint8ArrayToHex, unpackData } from '@hayalib/utils'
 
 /**
  * 基密文件处理器，把文件处理完成后调用浏览器下载（这种方式太占内存了，废弃处理）
@@ -30,7 +30,7 @@ export async function processFile(
 // 处理基密文件
 async function processHaJimiFile(id: string, file: File, fileWorkerPool: ThreadPool, gcWorkerPool: ThreadPool, sharedKey: Uint8Array) {
   // 1. 解包元数据
-  const unpacked = utils.unpackData(new Uint8Array(await file.arrayBuffer()))
+  const unpacked = unpackData(new Uint8Array(await file.arrayBuffer()))
   const fileData: ArrayBuffer = unpacked.payload.buffer
   // 2. 线程池提交 processHaJimiFile 任务
   const result: ArrayBuffer = await fileWorkerPool.submit({
@@ -38,7 +38,7 @@ async function processHaJimiFile(id: string, file: File, fileWorkerPool: ThreadP
     id,
     fileData,
     sharedKey,
-    header: utils.hexToUint8Array(unpacked.meta.header),
+    header: hexToUint8Array(unpacked.meta.header),
   }, [fileData])
   // 3. 下载文件
   downloadFile(new Uint8Array(result), unpacked.meta.fileName)
@@ -59,9 +59,9 @@ async function processNormalFile(id: string, file: File, fileWorkerPool: ThreadP
   }, [fileData])
   // 2. 打包元数据
   const resultData = new Uint8Array(result)
-  const header = utils.uint8ArrayToHex(resultData.subarray(0, 24))
+  const header = uint8ArrayToHex(resultData.subarray(0, 24))
   const content = resultData.subarray(24)
-  const finalData = utils.packData(content, { fileName: file.name, header })
+  const finalData = packData(content, { fileName: file.name, header })
   // 3. 下载文件
   downloadFile(finalData, '基密文件.hjm')
   // 4. 释放内存
