@@ -2,7 +2,7 @@ import type ThreadPool from '@/utils/thread-pool'
 import { utils } from 'hayalib'
 
 /**
- * 基密文件处理器，把文件处理完成后调用浏览器下载
+ * 基密文件处理器，把文件处理完成后调用浏览器下载（这种方式太占内存了，废弃处理）
  *
  * @param id 任务唯一ID
  * @param file 浏览器上传的文件

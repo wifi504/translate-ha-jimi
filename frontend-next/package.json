@@ -15,6 +15,7 @@
   "dependencies": {
     "hayalib": "workspace:*",
     "pinia": "^3.0.3",
+    "streamsaver": "^2.0.6",
     "vue": "^3.5.17",
     "vue-router": "4"
   }

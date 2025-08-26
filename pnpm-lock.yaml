@@ -23,6 +23,9 @@ importers:
       '@types/pako':
         specifier: ^2.0.3
         version: 2.0.3
+      '@types/streamsaver':
+        specifier: ^2.0.5
+        version: 2.0.5
       '@vicons/antd':
         specifier: ^0.13.0
         version: 0.13.0
@@ -77,6 +80,9 @@ importers:
       pinia:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))
+      streamsaver:
+        specifier: ^2.0.6
+        version: 2.0.6
       vue:
         specifier: ^3.5.17
         version: 3.5.18(typescript@5.8.3)
@@ -676,6 +682,9 @@ packages:
 
   '@types/pako@2.0.3':
     resolution: {integrity: sha512-bq0hMV9opAcrmE0Byyo0fY3Ew4tgOevJmQ9grUhpXQhYfyLJ1Kqg3P33JT5fdbT2AjeAjR51zqqVjAL/HMkx7Q==}
+
+  '@types/streamsaver@2.0.5':
+    resolution: {integrity: sha512-93o0zjV8swEhR2YI57h/2ytbJF8bJh7sI9GNB02TLJHdM4fWDxZuChwfWhyD8vt2ub4kw4rsfZ0C0yAUX+3gcg==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
@@ -1932,6 +1941,9 @@ packages:
     resolution: {integrity: sha512-1POYv7uv2gXoyGFpBCmpDVSNV74IfsWlDW216UPjbWufNf+bSU6GdbDsxdcxtfwb4xlI3yxzOTKClUosxARYrQ==}
     engines: {node: '>=0.10.0'}
 
+  streamsaver@2.0.6:
+    resolution: {integrity: sha512-LK4e7TfCV8HzuM0PKXuVUfKyCB1FtT9L0EGxsFk5Up8njj0bXK8pJM9+Wq2Nya7/jslmCQwRK39LFm55h7NBTw==}
+
   strip-indent@4.0.0:
     resolution: {integrity: sha512-mnVSV2l+Zv6BLpSD/8V87CW/y9EmmbYzGCIavsnsI6/nwn26DwffM/yztm30Z/I2DY9wdS3vXVCMnHDgZaVNoA==}
     engines: {node: '>=12'}
@@ -2564,6 +2576,8 @@ snapshots:
       undici-types: 7.10.0
 
   '@types/pako@2.0.3': {}
+
+  '@types/streamsaver@2.0.5': {}
 
   '@types/unist@3.0.3': {}
 
@@ -4100,6 +4114,8 @@ snapshots:
   spdx-license-ids@3.0.22: {}
 
   speakingurl@14.0.1: {}
+
+  streamsaver@2.0.6: {}
 
   strip-indent@4.0.0:
     dependencies:

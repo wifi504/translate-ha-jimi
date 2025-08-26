@@ -25,7 +25,7 @@ type MergerState = 'NEW' | 'FILLING' | 'READY' | 'EDITING'
 async function splitIntoChunks(
   data: File | Uint8Array,
   chunkSize: number,
-  onChunk: (chunk: Chunk) => void,
+  onChunk: (chunk: Chunk) => Promise<void>,
 ): Promise<void> {
   if (chunkSize <= 0) {
     throw new Error('分片大小必须大于0')
@@ -53,7 +53,7 @@ async function splitIntoChunks(
       const chunkData = new Uint8Array(arrayBuffer)
 
       // 调用回调函数
-      onChunk({
+      await onChunk({
         id,
         data: chunkData,
         totalSize,

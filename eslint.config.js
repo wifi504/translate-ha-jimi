@@ -19,6 +19,7 @@ export default antfu({
     '@typescript-eslint/no-explicit-any': 'off',
     // if 后可以不换行
     'antfu/if-newline': 'off',
+    'eslint-comments/no-unlimited-disable': 'off',
   },
   ignores: [
     'java-sdk/**',

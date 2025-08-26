@@ -21,6 +21,7 @@
     "@types/libsodium-wrappers": "^0.7.14",
     "@types/node": "^24.0.14",
     "@types/pako": "^2.0.3",
+    "@types/streamsaver": "^2.0.5",
     "@vicons/antd": "^0.13.0",
     "@vicons/fluent": "^0.13.0",
     "@vitejs/plugin-vue": "^6.0.0",

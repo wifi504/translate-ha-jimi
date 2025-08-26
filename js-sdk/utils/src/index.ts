@@ -131,3 +131,33 @@ export function unpackData(packed: Uint8Array) {
 
   return { meta, payload }
 }
+
+/**
+ * 根据输入数据构造元数据
+ *
+ * @param data 可以被 JSON 序列化的对象
+ */
+export function buildMetaData(data: any): Uint8Array {
+  const metadata = stringToUint8Array(encode(stringToUint8Array(JSON.stringify(data)), '基密文件'))
+  const header = new Uint8Array(4)
+  new DataView(header.buffer).setUint32(0, metadata.length, true)
+  const packed = new Uint8Array(header.length + metadata.length)
+  packed.set(header, 0)
+  packed.set(metadata, header.length)
+  return packed
+}
+
+/**
+ * 根据输入文件提取元数据对象和它在File中占据的长度Byte
+ *
+ * @param file File 对象
+ */
+export async function extractMetaDataInfo(file: File): Promise<{ data: any, metaByteLength: number }> {
+  const headerBuf = await file.slice(0, 4).arrayBuffer()
+  const headerView = new DataView(headerBuf)
+  const metaLen = headerView.getUint32(0, true)
+  const metaBuf = await file.slice(4, 4 + metaLen).arrayBuffer()
+  const metaBytes = new Uint8Array(metaBuf)
+  const data: any = JSON.parse(uint8ArrayToString(decode(uint8ArrayToString(metaBytes))))
+  return { data, metaByteLength: 4 + metaLen }
+}

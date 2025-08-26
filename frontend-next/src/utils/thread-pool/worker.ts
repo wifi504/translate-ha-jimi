@@ -11,7 +11,7 @@ logger.setLevel('INFO')
  *
  * @param main Worker运行的main函数，可以是异步函数，返回Worker的执行结果
  */
-export function defineWorker(main: (data: any) => any | Promise<any>) {
+export function defineWorker(main: (data: any) => (any | Promise<any>)) {
   // 注册监听器
   globalThis.addEventListener('message', async (event: MessageEvent) => {
     // 确认此 Worker 已经执行过 defineWorker()
