@@ -72,7 +72,7 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwifi504%2Ftranslate-ha-jimi&project-name=translate-ha-jimi&repository-name=translate-ha-jimi)
 
-切换到vercel分支后，按下"Create"即可全自动部署。
+切换到vercel分支后，按下"Deploy"即可全自动部署。
 
 
 
