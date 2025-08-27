@@ -2,7 +2,7 @@ import streamSaver from 'streamsaver'
 import { newGCWorker } from '@/utils/file/worker-builder.ts'
 import ThreadPool from '@/utils/thread-pool'
 
-// streamSaver.mitm = `/${import.meta.env.VITE_BASEURL}lib/streamsaver/mitm.html`
+streamSaver.mitm = `/${import.meta.env.VITE_BASEURL}lib/streamsaver/mitm.html`
 
 export type DownloaderStatus = 'NEW' | 'WRITING' | 'CLOSE'
 const gcThreadPool = new ThreadPool(newGCWorker, [], 1)

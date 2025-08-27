@@ -3,6 +3,7 @@ import { extractMetaDataInfo } from '@hayalib/utils'
 import FileDownloader from '@/utils/file/file-downloader.ts'
 import { getFileExtension } from '@/utils/file/file-utils.ts'
 import { newFileWorker } from '@/utils/file/worker-builder.ts'
+import SmoothProgress from '@/utils/smooth-progress.ts'
 import ThreadPool from '@/utils/thread-pool'
 
 // 文件处理状态
@@ -14,7 +15,7 @@ export interface FileProcessInfo {
   inputFileName: string
   outPutFileName: string
   status: FileProcessInfoStatus
-  progress: number
+  progress: SmoothProgress
 }
 
 // 基于流处理的基密文件处理器
@@ -54,7 +55,7 @@ export default class JimiFileProcessor {
       inputFileName: file.name,
       outPutFileName: '',
       status: 'WAITING',
-      progress: 0,
+      progress: new SmoothProgress(),
     })
     this.callbackFileProcessInfo(id)
     // 2. 获取文件名
@@ -71,7 +72,6 @@ export default class JimiFileProcessor {
     // 3. 初始化下载器
     this._filesDownloader.set(id, new FileDownloader(outputName))
     this._submitFilesInfo.get(id)!.outPutFileName = outputName
-    this.callbackFileProcessInfo(id)
     // 4. 提交处理任务
     this._fileThreadPool.submit({ id, file, key } as FileWorkerArgs)
       .then(() => this.callbackFileProcessInfo(id, 'SUCCESS', 100))
@@ -83,7 +83,7 @@ export default class JimiFileProcessor {
     if (this._submitFilesInfo.has(id)) {
       const info = this._submitFilesInfo.get(id)!
       if (status) info.status = status
-      if (progress) info.progress = progress
+      if (progress) info.progress.set(progress, 2000)
       this._processInfoCallback(info)
     }
   }
