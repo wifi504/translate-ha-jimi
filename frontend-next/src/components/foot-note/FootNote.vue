@@ -41,6 +41,11 @@
           {{ beianName }}
         </foot-a-link>
       </span>
+      <span v-if="policeBeian">
+        <foot-a-link :href="getPoliceBeianUrl() || 'http://www.beian.gov.cn/portal/registerSystemInfo'">
+          {{ policeBeian }}
+        </foot-a-link>
+      </span>
     </div>
   </div>
 </template>
@@ -55,9 +60,39 @@ function getYearSince(): string {
   return currentYear === since ? String(since) : `${since}-${currentYear}`
 }
 
+// 处理公安网备案的显示和链接逻辑，支持多种完整格式
+function getPoliceBeianUrl() {
+  const policeBeianValue = import.meta.env.VITE_POLICE_BEIAN?.trim()
+  if (!policeBeianValue) {
+    return null
+  }
+
+  // 使用字符串处理方法匹配公安网备案号格式
+  // 支持：京公网安备11010102000001号、苏公网安备 32061202001206 号等
+  // 查找"备"字的位置
+  const beiIndex = policeBeianValue.indexOf('备')
+  if (beiIndex === -1) {
+    return null // 必须包含"备"字
+  }
+
+  // 从"备"字后开始查找数字
+  const afterBei = policeBeianValue.substring(beiIndex + 1)
+
+  // 提取连续的数字
+  const numberMatch = afterBei.match(/^\s*(\d+)/)
+  if (!numberMatch) {
+    return null // 必须有数字
+  }
+
+  const code = numberMatch[1]
+
+  return `http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=${code}`
+}
+
 const version = import.meta.env.VITE_VERSION
 const gitSha = import.meta.env.VITE_GIT_SHA
 const beianName = import.meta.env.VITE_BEIAN_NAME
+const policeBeian = import.meta.env.VITE_POLICE_BEIAN
 
 const commitSvg = '<svg t="1755223842782" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15954" width="200" height="200"><path d="M853.344 213.344c0-70.4-57.6-128-128-128s-128 57.6-128 128c0 55.456 34.144 102.4 83.2 119.456-14.944 61.856-121.6 108.8-211.2 147.2-38.4 17.056-76.8 34.144-106.656 51.2v-198.4c49.056-17.056 85.344-64 85.344-119.456 0-70.4-57.6-128-128-128s-128 57.6-128 128c0 55.456 36.256 102.4 85.344 119.456v356.256c-49.056 17.056-85.344 64-85.344 119.456 0 70.4 57.6 128 128 128s128-57.6 128-128c0-55.456-36.256-102.4-85.344-119.456V640c4.256-21.344 93.856-59.744 140.8-81.056 119.456-51.2 253.856-110.944 264.544-224 49.056-17.056 85.344-66.144 85.344-121.6zM320 170.656c23.456 0 42.656 19.2 42.656 42.656s-19.2 42.656-42.656 42.656-42.656-19.2-42.656-42.656 19.2-42.656 42.656-42.656z m0 682.688c-23.456 0-42.656-19.2-42.656-42.656s19.2-42.656 42.656-42.656 42.656 19.2 42.656 42.656-19.2 42.656-42.656 42.656zM725.344 256c-23.456 0-42.656-19.2-42.656-42.656s19.2-42.656 42.656-42.656S768 189.888 768 213.344 748.8 256 725.344 256z" p-id="15955"></path></svg>'
 
