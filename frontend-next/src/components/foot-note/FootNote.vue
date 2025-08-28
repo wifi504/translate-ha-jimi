@@ -68,7 +68,7 @@ function getPoliceBeianUrl() {
   }
 
   // 使用字符串处理方法匹配公安网备案号格式
-  // 支持：京公网安备11010102000001号、苏公网安备 32061202001206 号等
+
   // 查找"备"字的位置
   const beiIndex = policeBeianValue.indexOf('备')
   if (beiIndex === -1) {
