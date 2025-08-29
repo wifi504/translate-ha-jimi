@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  这是依赖 streamsaver(v2.0.6) 的源文件（压缩版本）
  因为直接使用包导入并不会导入中间人页面和ServiceWorker，所以只能手动整合了

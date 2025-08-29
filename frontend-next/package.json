@@ -13,9 +13,9 @@
     "generate-vue-routes": "npx tsx ../scripts/generate-routes.ts"
   },
   "dependencies": {
-    "@hayalib/utils": "workspace:*",
-    "@hayalib/encryptor": "workspace:*",
     "@hayalib/compressor": "workspace:*",
+    "@hayalib/encryptor": "workspace:*",
+    "@hayalib/utils": "workspace:*",
     "pinia": "^3.0.3",
     "streamsaver": "^2.0.6",
     "vue": "^3.5.17",
