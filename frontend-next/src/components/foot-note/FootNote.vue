@@ -24,7 +24,7 @@
         Copyright © {{ getYearSince() }} 哈基密文加密器 v{{ version }}</span>
       <span class="git-commit">
         <span>(</span>
-        <foot-a-link :icon-svg="commitSvg" :href="`https://github.com/wifi504/translate-ha-jimi/commit/${gitSha}`">
+        <foot-a-link :icon-svg="commitSvg" :href="`https://github.com/wifi504/translate-ha-jimi/tree/${gitSha}`">
           {{ gitSha.substring(0, 7) }}
         </foot-a-link>
         <span>)</span>
@@ -42,7 +42,7 @@
         </foot-a-link>
       </span>
       <span v-if="policeBeian">
-        <foot-a-link :href="getPoliceBeianUrl() || 'http://www.beian.gov.cn/portal/registerSystemInfo'">
+        <foot-a-link :href="getPoliceBeianUrl() || 'https://www.beian.gov.cn/portal/registerSystemInfo'">
           {{ policeBeian }}
         </foot-a-link>
       </span>
@@ -86,7 +86,7 @@ function getPoliceBeianUrl() {
 
   const code = numberMatch[1]
 
-  return `http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=${code}`
+  return `https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=${code}`
 }
 
 const version = import.meta.env.VITE_VERSION
