@@ -39,8 +39,12 @@ export default class FileDownloader {
 
     while (this._queue.length > 0) {
       const { data, final } = this._queue.shift()!
-      await this._writer.write(data)
-      setTimeout(() => gcThreadPool.submit([data.buffer], [data.buffer]).catch(e => console.error(e)), 1000)
+      // 直接取出来的data因为太多地方在引用，所以GC不会释放
+      // 因此复制一份专门用来写入，这个复制出来的在函数执行完就会被自动释放
+      // data通过Transfer机制强行回收掉
+      const copy = new Uint8Array(data)
+      gcThreadPool.submit([data.buffer], [data.buffer]).catch(e => console.error(e))
+      await this._writer.write(copy)
 
       if (final) {
         await this._writer.close()

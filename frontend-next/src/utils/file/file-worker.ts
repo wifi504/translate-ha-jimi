@@ -55,13 +55,12 @@ async function handleNormalFile({ id, file, key }: FileWorkerArgs) {
   const chunkCollector = new ChunkCollector(30 * 1024 * 1024, handleEncrypt)
   // 4. 分片读取文件并处理
   await splitIntoChunks(file, 20 * 1024 * 1024, async (chunk: Chunk) => {
-    callbackProgress(id, ((chunk.id - 0.5) / chunk.totalChunks) * 100)
     const isFinal = chunk.id === chunk.totalChunks - 1
     // 压缩
     const compressed = compressChunk(compressState, chunk.data, isFinal)
     // 加密
     chunkCollector.push(compressed, isFinal)
-    callbackProgress(id, (chunk.id / chunk.totalChunks) * 100)
+    callbackProgress(id, ((chunk.id + 1) / chunk.totalChunks) * 100)
   })
 }
 
@@ -95,7 +94,7 @@ async function handleJimiFile({ id, file, key }: FileWorkerArgs) {
       catch (e) {
         throw new Error('decrypt-failed')
       }
-      callbackProgress(id, (chunk.id / chunk.totalChunks) * 100)
+      callbackProgress(id, ((chunk.id + 1) / chunk.totalChunks) * 100)
     }, metaByteLength)
   }
   catch (e) {
