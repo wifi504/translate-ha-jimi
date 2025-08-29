@@ -91,15 +91,21 @@ async function handleJimiFile({ id, file, key }: FileWorkerArgs) {
         }
         chunkCollector.push(data, isFinal)
       }
-      catch (e) {
+      catch {
         throw new Error('decrypt-failed')
       }
       callbackProgress(id, ((chunk.id + 1) / chunk.totalChunks) * 100)
     }, metaByteLength)
   }
   catch (e) {
-    console.log('解密线程遇到的Error：', e)
-    throw new Error('FAIL_FILE_NOT_ALLOWED')
+    if (e instanceof Error) {
+      if (e.message === 'decrypt-failed') {
+        throw new Error('FAIL_WRONG_KEY')
+      }
+      else {
+        throw new Error('FAIL_FILE_NOT_ALLOWED')
+      }
+    }
   }
 }
 

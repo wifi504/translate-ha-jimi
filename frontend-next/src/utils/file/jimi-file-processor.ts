@@ -17,12 +17,19 @@ export interface FileProcessInfo {
   progress: number
 }
 
+// 文件随机后缀
+function getRandomSuffix() {
+  return `${Date.now().toString().substring(9)}${Math.random().toString(36).slice(2, 6)}`
+}
+
 // 基于流处理的基密文件处理器
 export default class JimiFileProcessor {
   private _fileThreadPool: ThreadPool
   private _filesDownloader: Map<number, FileDownloader> = new Map()
   private _submitFilesInfo: Map<number, FileProcessInfo> = new Map()
   private _processInfoCallback: (info: FileProcessInfo) => void = () => {}
+  public suffixType: 'ORIGIN' | 'RANDOM' = 'RANDOM'
+
   constructor() {
     this._fileThreadPool = new ThreadPool(newFileWorker, [
       {
@@ -58,15 +65,24 @@ export default class JimiFileProcessor {
     })
     this.callbackFileProcessInfo(id)
     // 2. 获取文件名
-    let outputName: string = ''
+    let outputName: string
     if (getFileExtension(file.name) === 'hjm') {
       try {
         outputName = (await extractMetaDataInfo(file)).data.fileName!
       }
-      catch {}
+      catch {
+        outputName = '这不是基密文件！'
+      }
     }
     else {
-      outputName = '基密文件.hjm'
+      switch (this.suffixType) {
+        case 'ORIGIN':
+          outputName = `基密文件__${file.name}.hjm`
+          break
+        case 'RANDOM':
+          outputName = `基密文件__${getRandomSuffix()}.hjm`
+          break
+      }
     }
     // 3. 初始化下载器
     this._filesDownloader.set(id, new FileDownloader(outputName))
