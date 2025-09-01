@@ -13,7 +13,15 @@ export default [
     component: () => import('@/views/Index.vue'),
   },
   {
-    path: '/haji-file',
-    component: () => import('@/views/haji-file/Index.vue'),
+    path: '/file',
+    component: () => import('@/views/file/Index.vue'),
+  },
+  {
+    path: '/key',
+    component: () => import('@/views/key/Index.vue'),
+  },
+  {
+    path: '/translate',
+    component: () => import('@/views/translate/Index.vue'),
   },
 ] as RouteRecordRaw[]

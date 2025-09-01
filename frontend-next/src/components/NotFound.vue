@@ -74,7 +74,4 @@
 </style>
 
 <style lang="less">
-body {
-  background-color: #E5A272;
-}
 </style>

@@ -1,4 +1,5 @@
 import themeOverrides from '../assets/style/naive-ui-theme-overrides.json'
+
 /**
  * 主题工具
  *
@@ -15,16 +16,17 @@ const theme = {
   primaryColor: naiveUITheme.primaryColor,
   primaryColorLight: naiveUITheme.primaryColorHover,
   primaryColorDark: naiveUITheme.primaryColorPressed,
+  primaryColorAction: naiveUITheme.actionColor,
   backgroundColor: '#EFEFEF',
   backgroundColorLight: '#FFFFFF',
-  backgroundColorLark: '#CFCFCF',
+  backgroundColorDark: '#CFCFCF',
   fontSizeSmall: '14px',
   fontSizeNormal: '16px',
   fontSizeLarge: '18px',
   fontSizeSuper: '30px',
   textColorDark: '#131313',
   textColorNormal: '#333333',
-  textColorLight: '#a4a4a4',
+  textColorLight: '#8c8c8c',
 }
 export type Theme = typeof theme
 

@@ -2,14 +2,30 @@
   <div>
     <div
       class="header-container"
-      :style="{
-        padding: viewportStore.isSmallScreen ? '0 20px' : '0 20%',
+      :class="{
+        'header-container-phone': viewportStore.isSmallScreen,
       }"
     >
+      <div
+        v-if="viewportStore.isSmallScreen"
+        style="color: var(--primary-color-dark);
+               cursor: pointer;
+               display: flex;
+               flex-direction: column;
+               align-items: center;"
+        @click="() => showMenuDrawer = true"
+      >
+        <n-icon class="menu-icon" :size="30">
+          <vi-antd-menu-unfold-outlined />
+        </n-icon>
+        <span style="font-size: var(--font-size-small)">菜单</span>
+      </div>
       <img class="avatar" src="@/assets/image/hjm.png" alt="LOGO">
       <div class="title">
         <span class="main">哈基密文加密器</span>
-        <span class="sub">一款开源的离线端到端加密&编码工具</span>
+        <span class="sub">
+          一款开源且可离线使用的<br v-if="viewportStore.isSmallScreen"> 端到端加密 & 编码工具
+        </span>
       </div>
       <span
         v-if="!viewportStore.isSmallScreen"
@@ -19,10 +35,14 @@
       </span>
     </div>
     <div class="header-placeholder" />
+    <n-drawer v-model:show="showMenuDrawer" placement="left" width="75vw">
+      <page-menu @click="() => showMenuDrawer = false" />
+    </n-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useViewportStore } from '@/stores/viewportStore.ts'
 
 const viewportStore = useViewportStore()
@@ -30,12 +50,21 @@ const viewportStore = useViewportStore()
 function navigateBiliBili() {
   window.open('https://www.bilibili.com/video/BV1UctVzTEGv/', '_blank')
 }
+
+const showMenuDrawer = ref<boolean>(false)
+
+watch(() => viewportStore.isSmallScreen, (newVal: boolean) => {
+  if (!newVal) {
+    showMenuDrawer.value = false
+  }
+})
 </script>
 
 <style scoped lang="less">
 .header-container {
   user-select: none;
   background: var(--background-color-light);
+  padding: 0 20%;
   height: 90px;
   line-height: 1.2;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
@@ -103,6 +132,20 @@ function navigateBiliBili() {
     &:active {
       transform: scale(10);
       letter-spacing: -10px;
+    }
+  }
+}
+
+.header-container-phone {
+  padding: 0 20px;
+
+  .title {
+    .main {
+      font-size: var(--font-size-large);
+    }
+
+    .sub {
+      font-size: var(--font-size-small);
     }
   }
 }

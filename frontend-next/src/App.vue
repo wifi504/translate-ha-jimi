@@ -2,8 +2,10 @@
   <n-config-provider :theme-overrides="themeOverrides">
     <n-message-provider>
       <header-bar />
-      <content />
-      <foot-note />
+      <n-scrollbar style="max-height: calc(100vh - 90px);">
+        <content />
+        <foot-note />
+      </n-scrollbar>
     </n-message-provider>
   </n-config-provider>
 </template>
