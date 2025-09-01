@@ -8,15 +8,18 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Content: typeof import('./components/Content.vue')['default']
     FootALink: typeof import('./components/foot-note/FootALink.vue')['default']
     FootNote: typeof import('./components/foot-note/FootNote.vue')['default']
     HeaderBar: typeof import('./components/HeaderBar.vue')['default']
-    NavigationBar: typeof import('./components/NavigationBar.vue')['default']
+    MenuItem: typeof import('./components/menu/MenuItem.vue')['default']
+    NCard: typeof import('naive-ui')['NCard']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
     NMessageProvider: typeof import('naive-ui')['NMessageProvider']
     NotFound: typeof import('./components/NotFound.vue')['default']
     NUpload: typeof import('naive-ui')['NUpload']
     NUploadDragger: typeof import('naive-ui')['NUploadDragger']
+    PageMenu: typeof import('./components/menu/PageMenu.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
