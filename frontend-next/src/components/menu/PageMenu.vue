@@ -67,6 +67,7 @@
 <style scoped lang="less">
 .menu-card {
   box-sizing: border-box;
+  border-radius: 3px;
   width: 100%;
   display: flex;
   flex-direction: column;

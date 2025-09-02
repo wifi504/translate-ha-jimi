@@ -1,4 +1,5 @@
 import footNotesJson from '@/data/jsons/foot-notes.json'
+import homeNoticeJson from '@/data/jsons/home-notice.json'
 
 export interface FootNotes {
   iconLinks: {
@@ -12,4 +13,11 @@ export interface FootNotes {
   }[]
 }
 
+export type Notice = NoticeItem[]
+export interface NoticeItem {
+  title: string
+  textList: string[]
+}
+
 export const footNotes: FootNotes = footNotesJson
+export const homeNotice: Notice = homeNoticeJson
