@@ -1,17 +1,12 @@
 <template>
-  <div class="view-container">
-    view-container
-  </div>
+  <n-card>
+    <notice-renderer :notice="homeNotice" />
+  </n-card>
 </template>
 
 <script setup lang="ts">
-
+import { homeNotice } from '@/data/data-manager.ts'
 </script>
 
 <style scoped lang="less">
-.view-container {
-  background: #d6f3e3;
-  height: 1000px;
-  border: #18a058 2px solid;
-}
 </style>

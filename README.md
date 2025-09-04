@@ -1,4 +1,4 @@
-# 哈基密语 Next
+# 哈基密文 Next
 
 ![version](https://img.shields.io/badge/version-3.0.0-blue) ![license](https://img.shields.io/badge/license-GPLv3-green) ![vue](https://img.shields.io/badge/vue-3.5.x-4FC08D) ![last-commit](https://img.shields.io/github/last-commit/wifi504/translate-ha-jimi) ![stars](https://img.shields.io/github/stars/wifi504/translate-ha-jimi?style=social)
 
@@ -38,15 +38,23 @@
 - [ ] JavaScript SDK (hayalib库)
   - [x] 哈基编解码器
   - [x] 哈基压缩器
-  - [ ] 哈基加密器
+  - [x] 哈基加密器
+  - [x] 哈基函数
+  - [x] 哈基工具
   - [ ] hayalib及其分包的 `README.md`
-
 - [ ] Next版本全新前端
-  - [ ] 能自适应的banner
+  - [x] 自适应菜单
+  - [x] 自适应的banner
+  - [x] 首页 - 简介页面
+  - [ ] 哈基密语文本转换
+  - [ ] 基密文件转换
+  - [ ] 对称密钥交换
+  - [ ] 文件变成哈基密文文本的基密碎片
   - [ ] 全局的404页面
   - [x] 新的脚注信息展示，自动注入版本号等
-  - [ ] 对二进制文件的加密支持
   - [ ] 要在密钥交换后加一步哈基函数校验
+
+- [x] 对二进制文件的加密支持
 - [ ] 油猴脚本，让浏览器可以自动处理哈基密文
 - [ ] Java、Python平台SDK (hayalib库)
 
