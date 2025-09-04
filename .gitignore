@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Auto generated files
+frontend-next/src/components.d.ts
+frontend-next/src/assets/style/theme-define.css
