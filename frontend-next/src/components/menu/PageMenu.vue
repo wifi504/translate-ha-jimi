@@ -69,6 +69,7 @@
   box-sizing: border-box;
   border-radius: 3px;
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
