@@ -42,11 +42,12 @@ const loadingStore = useLoadingStore()
   width: 100%;
   height: 100%;
   background: rgba(255, 255, 255);
-  z-index: 9999;
+  z-index: 999;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 50px;
 
   .text {
     user-select: none;

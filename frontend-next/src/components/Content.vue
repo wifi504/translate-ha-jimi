@@ -1,9 +1,10 @@
 <template>
   <div
     class="content" :style="{
-      width: viewportStore.isSmallScreen ? '100%' : '85%',
-      padding: viewportStore.isSmallScreen ? '0' : '20px',
-      gap: viewportStore.isSmallScreen ? '0' : '20px',
+      'width': viewportStore.isSmallScreen ? '100%' : '85%',
+      'padding': viewportStore.isSmallScreen ? '0' : '20px',
+      'gap': viewportStore.isSmallScreen ? '0' : '20px',
+      'min-height': viewportStore.isSmallScreen && loadingStore.isLoading ? 'calc(100vh - 90px)' : '',
     }"
   >
     <transition name="menu-transition">
@@ -11,17 +12,21 @@
     </transition>
     <div class="router-view">
       <full-container-loading />
-      <keep-alive>
-        <router-view />
-      </keep-alive>
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useLoadingStore } from '@/stores/loadingStore.ts'
 import { useViewportStore } from '@/stores/viewportStore.ts'
 
 const viewportStore = useViewportStore()
+const loadingStore = useLoadingStore()
 </script>
 
 <style scoped lang="less">
