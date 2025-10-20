@@ -26,33 +26,27 @@
     </menu-item>
     <menu-item route-path="/file">
       <template #icon>
-        <vi-antd-file-zip-twotone />
+        <vi-fluent-document-lock24-filled />
       </template>
       基密文件
       <template #sub-title>
         人儿类文件加密成基密文件
       </template>
     </menu-item>
-    <menu-item>
-      没有图标的Menu
-      <template #sub-title>
-        这是小小的描述啊啊啊啊啊啊啊啊啊
-      </template>
-    </menu-item>
-    <menu-item>
+    <menu-item route-path="/chunk">
       <template #icon>
-        <vi-antd-menu-outlined />
+        <vi-fluent-board-split24-filled />
       </template>
-      没有详情的Menu
-    </menu-item>
-    <menu-item>
-      纯粹的Menu
+      基密碎片
+      <template #sub-title>
+        任意文件变纯文本哈基密文
+      </template>
     </menu-item>
     <menu-item a-link-path="sdk-docs">
       <template #icon>
         <vi-fluent-code-circle20-filled />
       </template>
-      SDK文档
+      SDK 文档
       <template #sub-title>
         在其他应用集成此加密器
       </template>

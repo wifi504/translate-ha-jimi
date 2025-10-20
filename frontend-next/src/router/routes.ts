@@ -13,6 +13,10 @@ export default [
     component: () => import('@/views/Index.vue'),
   },
   {
+    path: '/chunk',
+    component: () => import('@/views/chunk/Index.vue'),
+  },
+  {
     path: '/file',
     component: () => import('@/views/file/Index.vue'),
   },
