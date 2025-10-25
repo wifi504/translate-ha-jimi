@@ -1,9 +1,9 @@
-import type { ComponentResolveResult, ComponentResolverFunction } from 'unplugin-vue-components'
 import type { Plugin } from 'vite'
 import { execSync } from 'node:child_process'
 import * as fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { VIconsResolver } from '@ezview/vue-component-resolvers'
 import vue from '@vitejs/plugin-vue'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
@@ -58,28 +58,6 @@ export default defineConfig(({ mode, command }) => {
     },
   }
 })
-
-// 自动导入 vicons
-function VIconsResolver(): ComponentResolverFunction {
-  return function (name: string): ComponentResolveResult {
-    // 把 ViLibraryComponent 这样的组件名解析出来，分别得到库和组件名
-    function splitIconName(str: string): [string, string] | null {
-      const match = str.match(/^Vi([A-Z][a-z0-9]*)(?=[A-Z])(.+)$/)
-      if (!match) return null
-      const [, firstWord, rest] = match
-      return [firstWord, rest]
-    }
-    if (name.startsWith('Vi')) {
-      const split = splitIconName(name)
-      if (split && split[0] && split[1]) {
-        return {
-          name: split[1],
-          from: `@vicons/${split[0].toLowerCase()}`,
-        }
-      }
-    }
-  }
-}
 
 // 自动定义全局CSS主题变量
 function themeCSS(): Plugin {

@@ -18,6 +18,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^4.17.0",
     "@babel/parser": "^7.28.0",
+    "@ezview/vue-component-resolvers": "^1.0.2",
     "@types/libsodium-wrappers": "^0.7.14",
     "@types/node": "^24.0.14",
     "@types/pako": "^2.0.3",
