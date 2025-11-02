@@ -23,7 +23,6 @@
 
 <script setup lang="ts">
 import type { Notice } from '@/data/data-manager.ts'
-import MarkdownRenderer from '@/components/notice/MarkdownRenderer.vue'
 
 defineProps<{
   notice: Notice
