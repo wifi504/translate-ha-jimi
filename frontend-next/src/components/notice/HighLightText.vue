@@ -6,10 +6,11 @@
 
 <style scoped lang="less">
 .high-light-text {
-  color: #CF8D27;
+  color: #c97508;
   font-weight: bold;
   background: #F7EDDC;
-  padding: 3px 8px;
-  border-radius: 5px;
+  padding: 1px 4px;
+  margin: 0 2px;
+  border-radius: 4px;
 }
 </style>
