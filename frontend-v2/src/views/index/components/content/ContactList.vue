@@ -155,7 +155,7 @@ async function handleRemove(nickname: string) {
   if (res === 'success') {
     message.success('删除成功')
     contactStore.currentContact
-        = contactStore.getContactList !== 'access_denied' ? contactStore.getContactList[0] : ''
+      = contactStore.getContactList !== 'access_denied' ? contactStore.getContactList[0] : ''
     return
   }
   message.error('删除失败')
