@@ -5,7 +5,7 @@
     </template>
     <template #header-extra>
       <n-button-group>
-        <n-button :disabled="!contactStore.hasAuth">
+        <n-button :disabled="!contactStore.hasAuth" @click="handleAddOne">
           <template #icon>
             <n-icon>
               <vi-fluent-add24-regular />
@@ -31,14 +31,30 @@
         </n-button>
       </n-button-group>
     </template>
-    <n-empty v-if="contactStore.hasAuth || contactStore.contactList.length === 0" description="无数据" />
+    <key-table />
   </n-card>
 </template>
 
 <script setup lang="ts">
 import { useContactStore } from '@/stores/contactStore.ts'
+import KeyTable from '@/views/key/key-manager/KeyTable.vue'
 
 const contactStore = useContactStore()
+
+function handleAddOne() {
+  function generateRandomData() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    let str = ''
+    for (let i = 0; i < 8; i++) {
+      str += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    const arr = new Uint8Array(32)
+    crypto.getRandomValues(arr)
+    return { str, arr }
+  }
+  const { str, arr } = generateRandomData()
+  contactStore.setSecretKey(str, arr)
+}
 </script>
 
 <style scoped lang="less">
