@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import keyNotice from '@/data/jsons/key-notice.json'
+import { keyNotice } from '@/data/data-manager.ts'
 import KeyManager from '@/views/key/key-manager/KeyManager.vue'
 import LockManager from '@/views/key/lock-manager/LockManager.vue'
 </script>
