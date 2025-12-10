@@ -47,7 +47,10 @@ const loadingStore = useLoadingStore()
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 50px;
+
+  .spinner {
+    margin-top: 50px;
+  }
 
   .text {
     user-select: none;
