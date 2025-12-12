@@ -15,7 +15,7 @@
 import type { DataTableColumns, PaginationProps } from 'naive-ui'
 import type { TableColumn } from 'naive-ui/es/data-table/src/interface'
 import { uint8ArrayToHex } from '@hayalib/utils'
-import { computed, h, ref, watch } from 'vue'
+import { computed, h, onMounted, ref, watch } from 'vue'
 import { useContactStore } from '@/stores/contactStore.ts'
 import { useViewportStore } from '@/stores/viewportStore.ts'
 import KeyTableActions from '@/views/key/key-manager/KeyTableActions.vue'
@@ -97,7 +97,7 @@ function createPagination(isSmallScreen: boolean): PaginationProps {
     pageSlot: 12,
   }
   if (isSmallScreen) {
-    res.pageSlot = 8
+    res.pageSlot = 6
   }
   return res
 }
@@ -116,14 +116,22 @@ function updatePaginationStyle(isSmallScreen: boolean) {
   }
 }
 
-// 监听屏幕尺寸
-watch(() => viewportStore.isSmallScreen, (newVal) => {
+function updateView() {
   // 更新表格字段
-  columns.value = createColumns(newVal)
+  columns.value = createColumns(viewportStore.isSmallScreen)
   // 更新分页样式
-  pagination.value = createPagination(newVal)
-  updatePaginationStyle(newVal)
+  pagination.value = createPagination(viewportStore.isSmallScreen)
+  updatePaginationStyle(viewportStore.isSmallScreen)
+}
+
+// 监听屏幕尺寸
+watch(() => viewportStore.isSmallScreen, () => {
+  updateView()
 }, { immediate: true })
+
+onMounted(() => {
+  updateView()
+})
 </script>
 
 <style>
