@@ -65,12 +65,12 @@
           </n-button>
           <n-input v-model:value="yourIdentityStr" placeholder="对方扫码或者打开链接就会生成一个密钥" />
           <div
-            :class="verifyInfo.includes('成功') ? 'verify-info-text-success'
-              : verifyInfo.includes('失败') ? 'verify-info-text-fail' : ''"
+            :class="verifyState === 'success' ? 'verify-info-text-success'
+              : verifyState === 'fail' ? 'verify-info-text-fail' : ''"
           >
             <n-icon style="position: relative; top: 2px">
-              <check-circle-twotone v-if="verifyInfo.includes('成功')" />
-              <exclamation-circle-twotone v-else-if="verifyInfo.includes('失败')" />
+              <check-circle-twotone v-if="verifyState === 'success'" />
+              <exclamation-circle-twotone v-else-if="verifyState === 'fail'" />
             </n-icon>
             {{ verifyInfo }}
           </div>
@@ -140,6 +140,7 @@ const showModal = ref(false)
 const myIdentityStr = ref<string>('')
 const yourIdentityStr = ref<string>('')
 const verifyInfo = ref<string>('')
+const verifyState = ref<'idle' | 'success' | 'fail'>('idle')
 const nickname = ref<string>('')
 const secureChatService = new SecureChatService()
 const contactStore = useContactStore()
@@ -180,6 +181,8 @@ async function verifySignature(identityRawStr: string): Promise<boolean> {
   try {
     if (!identityStr) {
       verifyInfo.value = ''
+      verifyState.value = 'idle'
+      privateKey = null
       return false
     }
     if (!identityStr.startsWith('哈基密钥')) {
@@ -214,6 +217,7 @@ async function verifySignature(identityRawStr: string): Promise<boolean> {
         payload.kemAlg,
       )
       verifyInfo.value = 'Verification successful! Session key established using PQC!'
+      verifyState.value = 'success'
       return true
     }
 
@@ -229,18 +233,20 @@ async function verifySignature(identityRawStr: string): Promise<boolean> {
     }
     privateKey = secureChatService.computeSharedKey(SecureChatService.hexToUint8Array(identityHex[0]))
     verifyInfo.value = '验证成功！已经安全地生成了独属于你们的对称密钥！'
+    verifyState.value = 'success'
     return true
   }
   catch {
     verifyInfo.value = '对方密钥签名验证失败！'
+    verifyState.value = 'fail'
+    privateKey = null
     return false
   }
 }
 
 const canStartChat = computed<boolean>(() => {
-  const isVerified = verifyInfo.value.includes('成功')
   const isNicknameCheck = nickname.value.length > 0 && nickname.value.length <= 8
-  return (isVerified && isNicknameCheck && !!privateKey)
+  return (verifyState.value === 'success' && isNicknameCheck && !!privateKey)
 })
 
 const debounceVerifySignature = debounce((val: string) => {

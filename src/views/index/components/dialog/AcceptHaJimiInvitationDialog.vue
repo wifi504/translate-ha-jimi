@@ -45,12 +45,12 @@
         <n-step title="验证对方签名密钥">
           <div
             v-if="contactStore.hasAuth"
-            :class="verifyInfo.includes('成功') ? 'verify-info-text-success'
-              : verifyInfo.includes('失败') ? 'verify-info-text-fail' : ''"
+            :class="verifyState === 'success' ? 'verify-info-text-success'
+              : verifyState === 'fail' ? 'verify-info-text-fail' : ''"
           >
             <n-icon style="position: relative; top: 2px">
-              <check-circle-twotone v-if="verifyInfo.includes('成功')" />
-              <exclamation-circle-twotone v-else-if="verifyInfo.includes('失败')" />
+              <check-circle-twotone v-if="verifyState === 'success'" />
+              <exclamation-circle-twotone v-else-if="verifyState === 'fail'" />
             </n-icon>
             {{ verifyInfo }}
           </div>
@@ -160,6 +160,7 @@ defineEmits<{
 const showModal = ref(false)
 const myIdentityStr = ref<string>('')
 const verifyInfo = ref<string>('')
+const verifyState = ref<'idle' | 'success' | 'fail'>('idle')
 const nickname = ref<string>('')
 const contactStore = useContactStore()
 const route = useRoute()
@@ -250,6 +251,7 @@ async function verifySignature(): Promise<boolean> {
       myIdentityStr.value = HaJimiEncodeUtil.decorateHaJimiKey(HaJimiEncodeUtil.encode(compress))
 
       verifyInfo.value = 'Verification successful! Session key established using PQC!'
+      verifyState.value = 'success'
       return true
     }
 
@@ -265,6 +267,7 @@ async function verifySignature(): Promise<boolean> {
     }
     privateKey = secureChatService.computeSharedKey(SecureChatService.hexToUint8Array(identityHexList[0]))
     verifyInfo.value = '验证成功！已经安全地生成了独属于你们的对称密钥'
+    verifyState.value = 'success'
 
     // keep old format
     const identity = secureChatService.exportPublicIdentity()
@@ -280,14 +283,15 @@ async function verifySignature(): Promise<boolean> {
   }
   catch {
     verifyInfo.value = '验证失败！你需要让对方重发才能继续'
+    verifyState.value = 'fail'
+    privateKey = null
     return false
   }
 }
 
 const canStartChat = computed<boolean>(() => {
-  const isVerified = verifyInfo.value.includes('成功')
   const isNicknameCheck = nickname.value.length > 0 && nickname.value.length <= 8
-  return isVerified && isNicknameCheck && !!privateKey
+  return verifyState.value === 'success' && isNicknameCheck && !!privateKey
 })
 
 function startChat() {
