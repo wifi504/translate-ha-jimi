@@ -1,9 +1,9 @@
 {
   "name": "fronted-v2",
   "type": "module",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "private": true,
-  "description": "哈基密语加密器前端工程2.1版（此版本归档进入维护模式）",
+  "description": "哈基密语加密器前端工程2.3版（此版本归档进入维护模式）",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
