@@ -5,18 +5,15 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(
-  defineProps<{
-    href?: string;
-  }>(),
-  {
-    href: "",
-  }
-);
+const props = withDefaults(defineProps<{
+  href?: string
+}>(), {
+  href: '',
+})
 
 function handleNavigate() {
   if (props.href) {
-    window.open(props.href, "_blank", "noopener,noreferrer");
+    window.open(props.href, '_blank', 'noopener,noreferrer')
   }
 }
 </script>
