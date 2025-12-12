@@ -1,5 +1,10 @@
 <template>
-  <n-data-table :columns="columns" :data="data" size="small">
+  <n-data-table
+    :columns="columns"
+    :data="data"
+    :pagination="pagination"
+    size="small"
+  >
     <template #empty>
       <n-empty description="没有哈基密钥" />
     </template>
@@ -7,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import type { DataTableColumns } from 'naive-ui'
+import type { DataTableColumns, PaginationProps } from 'naive-ui'
 import type { TableColumn } from 'naive-ui/es/data-table/src/interface'
 import { uint8ArrayToHex } from '@hayalib/utils'
 import { computed, h, ref, watch } from 'vue'
@@ -65,10 +70,6 @@ function createColumns(isSmallScreen: boolean): DataTableColumns<RowData> {
   return res
 }
 
-watch(() => viewportStore.isSmallScreen, (newVal) => {
-  columns.value = createColumns(newVal)
-}, { immediate: true })
-
 const data = computed<RowData[]>(() => {
   let i = 1
   return contactStore.contactList.map(name => ({
@@ -85,4 +86,52 @@ function getKeyPreview(name: string): string {
   }
   return `${uint8ArrayToHex(res).substring(0, 36)}...`
 }
+
+// 分页
+const pagination = ref<PaginationProps>({})
+
+function createPagination(isSmallScreen: boolean): PaginationProps {
+  const res: PaginationProps = {
+    defaultPage: 1,
+    defaultPageSize: 10,
+    pageSlot: 12,
+  }
+  if (isSmallScreen) {
+    res.pageSlot = 8
+  }
+  return res
+}
+
+function updatePaginationStyle(isSmallScreen: boolean) {
+  const paginator = document.querySelector('.n-data-table__pagination')
+  if (paginator) {
+    if (isSmallScreen) {
+      paginator.classList.remove('n-data-table__pagination--pc')
+      paginator.classList.add('n-data-table__pagination--phone')
+    }
+    else {
+      paginator.classList.remove('n-data-table__pagination--phone')
+      paginator.classList.add('n-data-table__pagination--pc')
+    }
+  }
+}
+
+// 监听屏幕尺寸
+watch(() => viewportStore.isSmallScreen, (newVal) => {
+  // 更新表格字段
+  columns.value = createColumns(newVal)
+  // 更新分页样式
+  pagination.value = createPagination(newVal)
+  updatePaginationStyle(newVal)
+}, { immediate: true })
 </script>
+
+<style>
+.n-data-table__pagination--phone {
+  justify-content: center !important;
+}
+
+.n-data-table__pagination--pc {
+  justify-content: flex-end !important;
+}
+</style>
