@@ -148,6 +148,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { SecureChatService } from '@/service/SecureChatService.ts'
 import { TextCompressService } from '@/service/TextCompressService.ts'
 import { useContactStore } from '@/stores/contactStore.ts'
+import { base64UrlToBytes, bytesToBase64Url } from '@/utils/base64url'
 import { writeClipboard } from '@/utils/clipboard.ts'
 import { HaJimiEncodeUtil } from '@/utils/HaJimiEncodeUtil.ts'
 
@@ -169,28 +170,91 @@ let privateKey: Uint8Array | null = null
 // dhPublicKey | dhSignature | ed25519PublicKey
 type PublicIdentityHex = [string, string, string]
 
+interface InvitePQC {
+  v: 2
+  kemAlg: string
+  sigPk: string
+  dhPk: string
+  kemPk: string
+  sig: string
+  kemCt?: string
+}
+
+let myIdentityPqc: ReturnType<SecureChatService['exportPublicIdentityPQC']> | null = null
+
 async function initSecureChat() {
   await secureChatService.init()
-  const identity = secureChatService.exportPublicIdentity()
-  const identityHex: PublicIdentityHex = [
-    SecureChatService.uint8ArrayToHex(identity.dhPublicKey),
-    SecureChatService.uint8ArrayToHex(identity.dhSignature),
-    SecureChatService.uint8ArrayToHex(identity.ed25519PublicKey),
-  ]
-  const identityStr = JSON.stringify(identityHex)
-  const compress = TextCompressService.a(identityStr)
-  if (verifyInfo.value.includes('成功')) {
-    myIdentityStr.value = HaJimiEncodeUtil.decorateHaJimiKey(HaJimiEncodeUtil.encode(compress))
+  myIdentityPqc = secureChatService.exportPublicIdentityPQC()
+}
+
+function decodeInviteFromQuery(raw: unknown): InvitePQC | PublicIdentityHex {
+  const s = `${raw ?? ''}`.trim()
+  if (!s) {
+    throw new Error('fail')
+  }
+  // legacy: raw JSON in URL
+  try {
+    return JSON.parse(s)
+  }
+  catch {
+    const compressed = base64UrlToBytes(s)
+    const json = TextCompressService.x(compressed) as string
+    return JSON.parse(json)
   }
 }
 
-function verifySignature(): boolean {
+async function verifySignature(): Promise<boolean> {
   try {
     const raw = route.query.invite
     if (!raw) {
       throw new Error('fail')
     }
-    const identityHexList = JSON.parse(raw as string)
+
+    const decoded = decodeInviteFromQuery(raw)
+
+    if (decoded && typeof decoded === 'object' && (decoded as any).v === 2) {
+      const payload = decoded as InvitePQC
+      const peerDhPk = base64UrlToBytes(payload.dhPk)
+      const peerKemPk = base64UrlToBytes(payload.kemPk)
+      const verified = await SecureChatService.verifyHandshakeSignaturePQC(
+        peerDhPk,
+        peerKemPk,
+        base64UrlToBytes(payload.sig),
+        base64UrlToBytes(payload.sigPk),
+        payload.kemAlg,
+      )
+      if (!verified) {
+        throw new Error('fail')
+      }
+
+      const { sharedKey, kemCipherText } = await secureChatService.computePqcHybridSharedKeyAsResponder(
+        peerDhPk,
+        peerKemPk,
+        payload.kemAlg,
+      )
+      privateKey = sharedKey
+
+      if (!myIdentityPqc) {
+        throw new Error('fail')
+      }
+      const response: InvitePQC = {
+        v: 2,
+        kemAlg: myIdentityPqc.kemAlg,
+        sigPk: bytesToBase64Url(myIdentityPqc.ed25519PublicKey),
+        dhPk: bytesToBase64Url(myIdentityPqc.dhPublicKey),
+        kemPk: bytesToBase64Url(myIdentityPqc.kemPublicKey),
+        sig: bytesToBase64Url(myIdentityPqc.handshakeSignature),
+        kemCt: bytesToBase64Url(kemCipherText),
+      }
+      const compress = TextCompressService.a(JSON.stringify(response))
+      myIdentityStr.value = HaJimiEncodeUtil.decorateHaJimiKey(HaJimiEncodeUtil.encode(compress))
+
+      verifyInfo.value = 'Verification successful! Session key established using PQC!'
+      return true
+    }
+
+    // legacy fallback (no version field)
+    const identityHexList = decoded as PublicIdentityHex
     const verified = SecureChatService.verifyDHSignature(
       SecureChatService.hexToUint8Array(identityHexList[0]),
       SecureChatService.hexToUint8Array(identityHexList[1]),
@@ -201,6 +265,17 @@ function verifySignature(): boolean {
     }
     privateKey = secureChatService.computeSharedKey(SecureChatService.hexToUint8Array(identityHexList[0]))
     verifyInfo.value = '验证成功！已经安全地生成了独属于你们的对称密钥'
+
+    // keep old format
+    const identity = secureChatService.exportPublicIdentity()
+    const identityHex: PublicIdentityHex = [
+      SecureChatService.uint8ArrayToHex(identity.dhPublicKey),
+      SecureChatService.uint8ArrayToHex(identity.dhSignature),
+      SecureChatService.uint8ArrayToHex(identity.ed25519PublicKey),
+    ]
+    const compress = TextCompressService.a(JSON.stringify(identityHex))
+    myIdentityStr.value = HaJimiEncodeUtil.decorateHaJimiKey(HaJimiEncodeUtil.encode(compress))
+
     return true
   }
   catch {
@@ -232,8 +307,8 @@ function hide() {
 
 onBeforeMount(async () => {
   await initSecureChat()
-  verifySignature()
   if (route.query.invite) {
+    await verifySignature()
     await show()
   }
 })
