@@ -1,5 +1,5 @@
 <template>
-  <n-config-provider :theme-overrides="themeOverrides">
+  <n-config-provider :theme-overrides="themeOverrides" :locale="zhCN" :date-locale="dateZhCN">
     <n-message-provider>
       <header-bar />
       <n-scrollbar style="max-height: calc(100vh - 90px);">
@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+import { dateZhCN, zhCN } from 'naive-ui'
 import { onBeforeMount, onMounted, onUnmounted } from 'vue'
 import themeOverrides from '@/assets/style/naive-ui-theme-overrides.json'
 import { useViewportStore } from '@/stores/viewportStore.ts'

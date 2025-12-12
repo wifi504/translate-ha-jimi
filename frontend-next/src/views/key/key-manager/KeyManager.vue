@@ -13,7 +13,7 @@
           </template>
           新增
         </n-button>
-        <n-button :disabled="!contactStore.hasAuth">
+        <n-button :disabled="!contactStore.hasAuth" @click="() => importKeyDialogRef?.show()">
           <template #icon>
             <n-icon>
               <vi-fluent-arrow-download24-regular />
@@ -21,7 +21,7 @@
           </template>
           导入
         </n-button>
-        <n-button :disabled="!contactStore.hasAuth">
+        <n-button :disabled="!contactStore.hasAuth" @click="() => exportKeyDialogRef?.show()">
           <template #icon>
             <n-icon>
               <vi-fluent-arrow-upload24-regular />
@@ -31,15 +31,24 @@
         </n-button>
       </n-button-group>
     </template>
+    <!-- 密钥管理数据表 -->
     <key-table />
+    <!-- 导入导出模态框 -->
+    <import-key-dialog ref="importKeyDialogRef" />
+    <export-key-dialog ref="exportKeyDialogRef" />
   </n-card>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useContactStore } from '@/stores/contactStore.ts'
+import ExportKeyDialog from '@/views/key/key-manager/dialog/ExportKeyDialog.vue'
+import ImportKeyDialog from '@/views/key/key-manager/dialog/ImportKeyDialog.vue'
 import KeyTable from '@/views/key/key-manager/KeyTable.vue'
 
 const contactStore = useContactStore()
+const exportKeyDialogRef = ref<InstanceType<typeof ExportKeyDialog>>()
+const importKeyDialogRef = ref<InstanceType<typeof ImportKeyDialog>>()
 
 function handleAddOne() {
   function generateRandomData() {

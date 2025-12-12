@@ -77,6 +77,29 @@ async function processNormalFile(id: string, file: File, fileWorkerPool: ThreadP
  */
 export function downloadFile(data: Uint8Array, filename: string) {
   const blob = new Blob([data], { type: 'application/octet-stream' })
+  downloadBlob(blob, filename)
+}
+
+/**
+ * 浏览器触发下载 JSON 文件动作
+ *
+ * @param data 给用户下载的数据
+ * @param filename 文件名
+ * @param formated 是否格式化
+ */
+export function downloadJsonFile(data: any, filename: string, formated: boolean = false) {
+  const json = formated ? JSON.stringify(data, null, 2) : JSON.stringify(data)
+  const blob = new Blob([json], { type: 'application/json' })
+  downloadBlob(blob, filename)
+}
+
+/**
+ * 浏览器触发下载 Blob 文件动作
+ *
+ * @param blob 给用户下载的 Blob 数据
+ * @param filename 文件名
+ */
+export function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
@@ -110,4 +133,11 @@ export function checkExtensionAsImage(extension: string | null): boolean {
   if (extension === null) return false
   const images = ['jpg', 'jpeg', 'png', 'gif']
   return images.includes(extension.toLowerCase())
+}
+
+/**
+ * 文件随机后缀
+ */
+export function getRandomSuffix() {
+  return `${Date.now().toString().substring(9)}${Math.random().toString(36).slice(2, 6)}`
 }

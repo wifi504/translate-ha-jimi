@@ -1,7 +1,7 @@
 import type { FileWorkerArgs } from '@/utils/file/file-worker.ts'
 import { extractMetaDataInfo } from '@hayalib/utils'
 import FileDownloader from '@/utils/file/file-downloader.ts'
-import { getFileExtension } from '@/utils/file/file-utils.ts'
+import { getFileExtension, getRandomSuffix } from '@/utils/file/file-utils.ts'
 import { newFileWorker } from '@/utils/file/worker-builder.ts'
 import ThreadPool from '@/utils/thread-pool'
 
@@ -15,11 +15,6 @@ export interface FileProcessInfo {
   outPutFileName: string
   status: FileProcessInfoStatus
   progress: number
-}
-
-// 文件随机后缀
-function getRandomSuffix() {
-  return `${Date.now().toString().substring(9)}${Math.random().toString(36).slice(2, 6)}`
 }
 
 // 基于流处理的基密文件处理器
