@@ -40,7 +40,7 @@ function handleClick() {
     router.push(props.routePath)
   }
   if (props.aLinkPath) {
-    window.open(props.aLinkPath, '_blank')
+    window.open(props.aLinkPath, '_blank', 'noopener,noreferrer')
   }
 }
 </script>

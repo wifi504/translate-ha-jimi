@@ -48,7 +48,7 @@ import { useViewportStore } from '@/stores/viewportStore.ts'
 const viewportStore = useViewportStore()
 
 function navigateBiliBili() {
-  window.open('https://www.bilibili.com/video/BV1UctVzTEGv/', '_blank')
+  window.open('https://www.bilibili.com/video/BV1UctVzTEGv/', '_blank', 'noopener,noreferrer')
 }
 
 const showMenuDrawer = ref<boolean>(false)
