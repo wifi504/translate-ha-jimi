@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<{
 const title = getHaJimiTitle()
 
 function navigateBiliBili() {
-  window.open('https://www.bilibili.com/video/BV16Lgiz5E2m/', '_blank')
+  window.open('https://www.bilibili.com/video/BV16Lgiz5E2m/', '_blank', 'noopener,noreferrer')
 }
 
 onMounted(() => {
