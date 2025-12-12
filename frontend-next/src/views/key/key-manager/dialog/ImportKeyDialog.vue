@@ -44,16 +44,25 @@
 
 <script setup lang="ts">
 import type { TransferRenderTargetLabel } from 'naive-ui'
+import type { TransferKey } from '@/views/key/key-manager/dialog/TransferKeysType.ts'
+import { decode } from '@hayalib/encoder'
+import { hexToUint8Array } from '@hayalib/utils'
 import { useMessage } from 'naive-ui'
 import { h, ref } from 'vue'
 import { useContactStore } from '@/stores/contactStore.ts'
+
+interface HaJimiKeyOption {
+  label: string
+  value: string
+  key: Uint8Array
+}
 
 const showModal = ref(false)
 const isLoading = ref<boolean>(false)
 const contactStore = useContactStore()
 const message = useMessage()
 const transferData = ref<string[]>([])
-const options = ref<{ label: string, value: string, key: string }[]>([])
+const options = ref<HaJimiKeyOption[]>([])
 
 const renderTargetLabel: TransferRenderTargetLabel = ({ option }) => {
   const hasKey = contactStore.contactList.includes(option.label)
@@ -94,24 +103,66 @@ function handleSelectFile() {
     const file = (e.target as HTMLInputElement)?.files?.[0]
     if (!file) return
     const text = await file.text()
-    const json = JSON.parse(text)
-    if (!verifyHaJimiKey(json)) return
-    message.success(`成功解析 ${json.length} 条哈基密钥！`)
-    options.value = json.map((item: any) => ({
-      label: item.name,
-      value: item.name,
-      key: item.key,
-    }))
-
+    const haJimiKeys = parseHaJimiKeys(text)
+    if (haJimiKeys.length <= 0) {
+      message.error('解析哈基密钥文件失败！')
+      return
+    }
+    message.success(`成功解析 ${haJimiKeys.length} 条哈基密钥！`)
+    options.value = haJimiKeys
     isLoading.value = false
   }
   input.click()
 }
 
-// 验证密钥文件
-function verifyHaJimiKey(json: any): boolean {
-  // TODO 验证密钥文件...
-  return true
+// 解析密钥文件
+function parseHaJimiKeys(text: string): HaJimiKeyOption[] {
+  try {
+    const errorMsg = '不是合法的哈基密文格式'
+    const res: HaJimiKeyOption[] = []
+    // 转换成对象
+    const jsonObj = JSON.parse(text)
+    // 必须是数组
+    if (!Array.isArray(jsonObj)) {
+      message.error(errorMsg)
+      throw new TypeError(errorMsg)
+    }
+    // 判断每一项是否是 TransferKey，追加
+    jsonObj.forEach((item: any) => {
+      const { name, key } = item
+      if (name && typeof name === 'string' && key && typeof key === 'string') {
+        const transferKey: TransferKey = { name, key }
+        // 判断此密钥是否重复
+        if (res.find(item => item.label === transferKey.name)) {
+          return
+        }
+        let uint8ArrayKey: Uint8Array
+        // 判断密钥是否合法，并解析回 Uint8Array
+        try {
+          if (transferKey.key.startsWith('哈基密钥')) {
+            uint8ArrayKey = decode(transferKey.key)
+          }
+          else {
+            uint8ArrayKey = hexToUint8Array(transferKey.key)
+          }
+        }
+        catch {
+          return
+        }
+        if (uint8ArrayKey.length !== 32) return
+        // 结果集中追加
+        res.push({
+          label: transferKey.name,
+          value: transferKey.name,
+          key: uint8ArrayKey,
+        })
+      }
+    })
+    return res
+  }
+  catch {
+    return []
+  }
 }
 
 function handleImport() {
@@ -119,14 +170,20 @@ function handleImport() {
     message.error('请选择要导入的密钥！')
     return
   }
-  // TODO 导入密钥的逻辑...
-
-  message.success(`成功导入了 ${0} 条哈基密钥！`)
+  const keys: Record<string, Uint8Array> = {}
+  options.value.forEach((item) => {
+    keys[item.label] = item.key
+  })
+  transferData.value.forEach((item) => {
+    contactStore.setSecretKey(item, keys[item])
+  })
+  message.success(`成功导入了 ${transferData.value.length} 条哈基密钥！`)
   hide()
 }
 
 function show() {
   options.value = []
+  transferData.value = []
   isLoading.value = true
   showModal.value = true
   handleSelectFile()
