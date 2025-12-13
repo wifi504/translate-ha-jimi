@@ -65,12 +65,12 @@
           </n-button>
           <n-input v-model:value="yourIdentityStr" placeholder="对方扫码或者打开链接就会生成一个密钥" />
           <div
-            :class="verifyInfo.includes('成功') ? 'verify-info-text-success'
-              : verifyInfo.includes('失败') ? 'verify-info-text-fail' : ''"
+            :class="verifyState === 'success' ? 'verify-info-text-success'
+              : verifyState === 'fail' ? 'verify-info-text-fail' : ''"
           >
             <n-icon style="position: relative; top: 2px">
-              <check-circle-twotone v-if="verifyInfo.includes('成功')" />
-              <exclamation-circle-twotone v-else-if="verifyInfo.includes('失败')" />
+              <check-circle-twotone v-if="verifyState === 'success'" />
+              <exclamation-circle-twotone v-else-if="verifyState === 'fail'" />
             </n-icon>
             {{ verifyInfo }}
           </div>
@@ -130,6 +130,7 @@ import hjmLogo from '@/assets/image/hjm.png'
 import { SecureChatService } from '@/service/SecureChatService.ts'
 import { TextCompressService } from '@/service/TextCompressService.ts'
 import { useContactStore } from '@/stores/contactStore.ts'
+import { base64UrlToBytes, bytesToBase64Url } from '@/utils/base64url'
 import { readClipboard, writeClipboard } from '@/utils/clipboard.ts'
 import { debounce } from '@/utils/debounce.ts'
 import { HaJimiEncodeUtil } from '@/utils/HaJimiEncodeUtil.ts'
@@ -139,6 +140,7 @@ const showModal = ref(false)
 const myIdentityStr = ref<string>('')
 const yourIdentityStr = ref<string>('')
 const verifyInfo = ref<string>('')
+const verifyState = ref<'idle' | 'success' | 'fail'>('idle')
 const nickname = ref<string>('')
 const secureChatService = new SecureChatService()
 const contactStore = useContactStore()
@@ -147,22 +149,40 @@ let privateKey: Uint8Array | null = null
 // dhPublicKey | dhSignature | ed25519PublicKey
 type PublicIdentityHex = [string, string, string]
 
-async function initSecureChat() {
-  await secureChatService.init()
-  const identity = secureChatService.exportPublicIdentity()
-  const identityHex: PublicIdentityHex = [
-    SecureChatService.uint8ArrayToHex(identity.dhPublicKey),
-    SecureChatService.uint8ArrayToHex(identity.dhSignature),
-    SecureChatService.uint8ArrayToHex(identity.ed25519PublicKey),
-  ]
-  myIdentityStr.value = JSON.stringify(identityHex)
+interface InvitePQC {
+  v: 2
+  kemAlg: string
+  sigPk: string
+  dhPk: string
+  kemPk: string
+  sig: string
+  kemCt?: string
 }
 
-function verifySignature(identityRawStr: string): boolean {
+async function initSecureChat() {
+  await secureChatService.init()
+
+  // PQC invite payload 
+  const identity = secureChatService.exportPublicIdentityPQC()
+  const invite: InvitePQC = {
+    v: 2,
+    kemAlg: identity.kemAlg,
+    sigPk: bytesToBase64Url(identity.ed25519PublicKey),
+    dhPk: bytesToBase64Url(identity.dhPublicKey),
+    kemPk: bytesToBase64Url(identity.kemPublicKey),
+    sig: bytesToBase64Url(identity.handshakeSignature),
+  }
+  const compressed = TextCompressService.a(JSON.stringify(invite))
+  myIdentityStr.value = bytesToBase64Url(compressed)
+}
+
+async function verifySignature(identityRawStr: string): Promise<boolean> {
   const identityStr = identityRawStr.trim()
   try {
     if (!identityStr) {
       verifyInfo.value = ''
+      verifyState.value = 'idle'
+      privateKey = null
       return false
     }
     if (!identityStr.startsWith('哈基密钥')) {
@@ -170,7 +190,39 @@ function verifySignature(identityRawStr: string): boolean {
     }
     const compress = HaJimiEncodeUtil.decode(HaJimiEncodeUtil.stripHaJimi(identityStr))
     const identityDecodeStr = TextCompressService.x(compress)
-    const identityHex = JSON.parse(identityDecodeStr as string)
+    const decoded = JSON.parse(identityDecodeStr as string)
+
+    // PQC response (hybrid; protocol marker is v:2)
+    if (decoded && typeof decoded === 'object' && decoded.v === 2) {
+      const payload = decoded as InvitePQC
+      if (!payload.kemCt) {
+        throw new Error('fail')
+      }
+      const peerDhPk = base64UrlToBytes(payload.dhPk)
+      const peerKemPk = base64UrlToBytes(payload.kemPk)
+      const verified = await SecureChatService.verifyHandshakeSignaturePQC(
+        peerDhPk,
+        peerKemPk,
+        base64UrlToBytes(payload.sig),
+        base64UrlToBytes(payload.sigPk),
+        payload.kemAlg,
+      )
+      if (!verified) {
+        throw new Error('fail')
+      }
+      privateKey = await secureChatService.computePqcHybridSharedKeyAsInitiator(
+        peerDhPk,
+        peerKemPk,
+        base64UrlToBytes(payload.kemCt),
+        payload.kemAlg,
+      )
+      verifyInfo.value = 'Verification successful! Session key established using PQC!'
+      verifyState.value = 'success'
+      return true
+    }
+
+    // legacy fallback (no version field)
+    const identityHex = decoded as PublicIdentityHex
     const verified = SecureChatService.verifyDHSignature(
       SecureChatService.hexToUint8Array(identityHex[0]),
       SecureChatService.hexToUint8Array(identityHex[1]),
@@ -181,21 +233,25 @@ function verifySignature(identityRawStr: string): boolean {
     }
     privateKey = secureChatService.computeSharedKey(SecureChatService.hexToUint8Array(identityHex[0]))
     verifyInfo.value = '验证成功！已经安全地生成了独属于你们的对称密钥！'
+    verifyState.value = 'success'
     return true
   }
   catch {
     verifyInfo.value = '对方密钥签名验证失败！'
+    verifyState.value = 'fail'
+    privateKey = null
     return false
   }
 }
 
 const canStartChat = computed<boolean>(() => {
-  const isVerified = verifyInfo.value.includes('成功')
   const isNicknameCheck = nickname.value.length > 0 && nickname.value.length <= 8
-  return (isVerified && isNicknameCheck && !!privateKey)
+  return (verifyState.value === 'success' && isNicknameCheck && !!privateKey)
 })
 
-const debounceVerifySignature = debounce(verifySignature, 100)
+const debounceVerifySignature = debounce((val: string) => {
+  void verifySignature(val)
+}, 100)
 
 watch(yourIdentityStr, (newVal) => {
   debounceVerifySignature(newVal)

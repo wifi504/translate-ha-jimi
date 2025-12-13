@@ -1,5 +1,6 @@
 import { streamXOR } from '@stablelib/chacha'
 import sodium from 'libsodium-wrappers'
+import { MlKem768 } from 'mlkem'
 /**
  * 哈基密语端到端加密通信服务
  *
@@ -13,6 +14,11 @@ export class SecureChatService {
 
   // X25519 密钥对：Diffie-Hellman 密钥交换
   private _x25519?: sodium.KeyPair
+
+  // ML-KEM (Kyber) key pair: PQC Key Encapsulation
+  private _mlkemPublicKey?: Uint8Array
+  private _mlkemSecretKey?: Uint8Array
+  private readonly _mlkem = new MlKem768()
 
   // 对称加密密钥
   private _sharedKey?: Uint8Array
@@ -40,6 +46,12 @@ export class SecureChatService {
     this._ed25519 = sodium.crypto_sign_keypair()
     // DH密钥
     this._x25519 = sodium.crypto_box_keypair()
+
+    // PQC: ML-KEM-768 keypair (async)
+    const [pk, sk] = await this._mlkem.generateKeyPair()
+    this._mlkemPublicKey = pk
+    this._mlkemSecretKey = sk
+
     this._isReady = true
   }
 
@@ -63,6 +75,14 @@ export class SecureChatService {
     return this._x25519.publicKey
   }
 
+  // Get the ML-KEM-768 public key
+  get mlkem768PublicKey(): Uint8Array {
+    if (!this._mlkemPublicKey) {
+      throw new Error('尚未初始化：请先调用 init()')
+    }
+    return this._mlkemPublicKey
+  }
+
   /**
    * 签名自己的 X25519 公钥
    * 用于发送给对方，确保公钥真实性（防止中间人攻击）
@@ -71,7 +91,58 @@ export class SecureChatService {
     if (!this._ed25519 || !this._x25519) {
       throw new Error('尚未初始化：请先调用 init()')
     }
-    return sodium.crypto_sign_detached(this._x25519.publicKey, this._ed25519.privateKey)
+    return sodium.crypto_sign_detached(
+      this._x25519.publicKey,
+      this._ed25519.privateKey,
+    )
+  }
+
+  private static readonly _HANDSHAKE_PQC_PREFIX = 'hajimi-handshake-v2'
+  static readonly HANDSHAKE_PQC_KEM_ALG = 'ml-kem-768'
+  private static readonly _PQC_KDF_SALT = 'hajimi-pqc-v2'
+
+  private static buildHandshakeV2Message(
+    dhPublicKey: Uint8Array,
+    kemPublicKey: Uint8Array,
+    kemAlg: string = SecureChatService.HANDSHAKE_PQC_KEM_ALG,
+  ): Uint8Array {
+    const prefixBytes = new TextEncoder().encode(
+      SecureChatService._HANDSHAKE_PQC_PREFIX,
+    )
+    const kemAlgBytes = new TextEncoder().encode(kemAlg)
+    // Fixed-length keys, but we still include context + kemAlg to avoid cross-protocol confusion.
+    const msg = new Uint8Array(
+      prefixBytes.length
+      + 1
+      + kemAlgBytes.length
+      + dhPublicKey.length
+      + kemPublicKey.length,
+    )
+    let o = 0
+    msg.set(prefixBytes, o)
+    o += prefixBytes.length
+    msg[o++] = 0
+    msg.set(kemAlgBytes, o)
+    o += kemAlgBytes.length
+    msg.set(dhPublicKey, o)
+    o += dhPublicKey.length
+    msg.set(kemPublicKey, o)
+    return msg
+  }
+
+  // Sign X25519 public key + ML-KEM public key
+  signHandshakePublicKeysPQC(
+    kemAlg: string = SecureChatService.HANDSHAKE_PQC_KEM_ALG,
+  ): Uint8Array {
+    if (!this._ed25519 || !this._x25519 || !this._mlkemPublicKey) {
+      throw new Error('尚未初始化：请先调用 init()')
+    }
+    const msg = SecureChatService.buildHandshakeV2Message(
+      this._x25519.publicKey,
+      this._mlkemPublicKey,
+      kemAlg,
+    )
+    return sodium.crypto_sign_detached(msg, this._ed25519.privateKey)
   }
 
   /**
@@ -88,7 +159,87 @@ export class SecureChatService {
     // 双方私钥：标量 a b
     // 双方公钥：A=aG  B=bG
     // 协商结果：K=aB=bA=abG
-    this._sharedKey = sodium.crypto_scalarmult(this._x25519.privateKey, peerPublicKey)
+    this._sharedKey = sodium.crypto_scalarmult(
+      this._x25519.privateKey,
+      peerPublicKey,
+    )
+    return this._sharedKey
+  }
+
+  private static async hkdfSha256(
+    ikm: Uint8Array,
+    salt: Uint8Array,
+    info: Uint8Array,
+    length: number,
+  ): Promise<Uint8Array> {
+    const ikmCopy = new Uint8Array(ikm)
+    const saltCopy = new Uint8Array(salt)
+    const infoCopy = new Uint8Array(info)
+
+    const key = await crypto.subtle.importKey('raw', ikmCopy, 'HKDF', false, [
+      'deriveBits',
+    ])
+    const bits = await crypto.subtle.deriveBits(
+      { name: 'HKDF', hash: 'SHA-256', salt: saltCopy, info: infoCopy },
+      key,
+      length * 8,
+    )
+    return new Uint8Array(bits)
+  }
+
+  async computePqcHybridSharedKeyAsResponder(
+    peerDhPublicKey: Uint8Array,
+    peerKemPublicKey: Uint8Array,
+    kemAlg: string = SecureChatService.HANDSHAKE_PQC_KEM_ALG,
+  ): Promise<{ sharedKey: Uint8Array, kemCipherText: Uint8Array }> {
+    if (!this._x25519 || !this._mlkemSecretKey) {
+      throw new Error('尚未初始化：请先调用 init()')
+    }
+
+    const xShared = sodium.crypto_scalarmult(
+      this._x25519.privateKey,
+      peerDhPublicKey,
+    )
+    const [cipherText, pqShared] = await this._mlkem.encap(peerKemPublicKey)
+
+    const ikm = new Uint8Array(xShared.length + pqShared.length)
+    ikm.set(xShared, 0)
+    ikm.set(pqShared, xShared.length)
+
+    const salt = new TextEncoder().encode(SecureChatService._PQC_KDF_SALT)
+    const info = new TextEncoder().encode(`x25519+${kemAlg}`)
+    this._sharedKey = await SecureChatService.hkdfSha256(ikm, salt, info, 32)
+    return { sharedKey: this._sharedKey, kemCipherText: cipherText }
+  }
+
+  async computePqcHybridSharedKeyAsInitiator(
+    peerDhPublicKey: Uint8Array,
+    peerKemPublicKey: Uint8Array,
+    peerKemCipherText: Uint8Array,
+    kemAlg: string = SecureChatService.HANDSHAKE_PQC_KEM_ALG,
+  ): Promise<Uint8Array> {
+    if (!this._x25519 || !this._mlkemSecretKey) {
+      throw new Error('尚未初始化：请先调用 init()')
+    }
+
+    void peerKemPublicKey
+
+    const xShared = sodium.crypto_scalarmult(
+      this._x25519.privateKey,
+      peerDhPublicKey,
+    )
+    const pqShared = await this._mlkem.decap(
+      peerKemCipherText,
+      this._mlkemSecretKey,
+    )
+
+    const ikm = new Uint8Array(xShared.length + pqShared.length)
+    ikm.set(xShared, 0)
+    ikm.set(pqShared, xShared.length)
+
+    const salt = new TextEncoder().encode(SecureChatService._PQC_KDF_SALT)
+    const info = new TextEncoder().encode(`x25519+${kemAlg}`)
+    this._sharedKey = await SecureChatService.hkdfSha256(ikm, salt, info, 32)
     return this._sharedKey
   }
 
@@ -205,6 +356,23 @@ export class SecureChatService {
     }
   }
 
+  // PQC: Export identity information (includes PQC public key + combined signature)
+  exportPublicIdentityPQC(
+    kemAlg: string = SecureChatService.HANDSHAKE_PQC_KEM_ALG,
+  ) {
+    if (!this._ed25519 || !this._x25519 || !this._mlkemPublicKey) {
+      throw new Error('尚未初始化：请先调用 init()')
+    }
+    return {
+      v: 2 as const,
+      kemAlg,
+      ed25519PublicKey: this._ed25519.publicKey,
+      dhPublicKey: this._x25519.publicKey,
+      kemPublicKey: this._mlkemPublicKey,
+      handshakeSignature: this.signHandshakePublicKeysPQC(kemAlg),
+    }
+  }
+
   /**
    * 静态方法：验证对方 DH 公钥的签名是否有效
    * @param dhPublicKey 对方的 DH 公钥（Uint8Array）
@@ -216,7 +384,28 @@ export class SecureChatService {
     signature: Uint8Array,
     ed25519PublicKey: Uint8Array,
   ): boolean {
-    return sodium.crypto_sign_verify_detached(signature, dhPublicKey, ed25519PublicKey)
+    return sodium.crypto_sign_verify_detached(
+      signature,
+      dhPublicKey,
+      ed25519PublicKey,
+    )
+  }
+
+  // PQC: Verify signature
+  static async verifyHandshakeSignaturePQC(
+    dhPublicKey: Uint8Array,
+    kemPublicKey: Uint8Array,
+    signature: Uint8Array,
+    ed25519PublicKey: Uint8Array,
+    kemAlg: string = SecureChatService.HANDSHAKE_PQC_KEM_ALG,
+  ): Promise<boolean> {
+    await sodium.ready
+    const msg = SecureChatService.buildHandshakeV2Message(
+      dhPublicKey,
+      kemPublicKey,
+      kemAlg,
+    )
+    return sodium.crypto_sign_verify_detached(signature, msg, ed25519PublicKey)
   }
 
   /**
