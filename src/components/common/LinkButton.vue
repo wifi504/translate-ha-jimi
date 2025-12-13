@@ -29,7 +29,7 @@ const props = withDefaults(defineProps<{
 
 function handleNavigate() {
   if (props.href) {
-    window.open(props.href, '_blank')
+    window.open(props.href, '_blank', 'noopener,noreferrer')
   }
 }
 </script>

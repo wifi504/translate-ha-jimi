@@ -9,7 +9,7 @@
     <p>
       使用 GPL-3.0 license 开放源代码 |
       <text-link href="https://github.com/wifi504/translate-ha-jimi">
-        Copyright © 2025 哈基密语加密器 All Rights Reserved.
+        Copyright © 2025 哈基密语加密器 (v2.3) All Rights Reserved.
       </text-link>
     </p>
     <p>
