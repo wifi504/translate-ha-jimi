@@ -6,7 +6,9 @@
           导出哈基密钥
         </n-h3>
       </template>
-      <n-transfer v-model:value="transferData" :options="options" />
+      <n-spin :show="isLoading">
+        <n-transfer v-model:value="transferData" :options="options" />
+      </n-spin>
       <div style="height: 12px;" />
       <n-checkbox v-model:checked="doesUseHaJimi">
         使用哈基密文导出
@@ -30,21 +32,31 @@ import type { TransferKeys } from '@/views/key/key-manager/dialog/TransferKeysTy
 import { encode } from '@hayalib/encoder'
 import { uint8ArrayToHex } from '@hayalib/utils'
 import { useMessage } from 'naive-ui'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useContactStore } from '@/stores/contactStore.ts'
 import { downloadJsonFile, getRandomSuffix } from '@/utils/file/file-utils.ts'
 
 const showModal = ref<boolean>(false)
+const isLoading = ref<boolean>(false)
 const doesUseHaJimi = ref<boolean>(true)
 const contactStore = useContactStore()
 const message = useMessage()
 const transferData = ref<string[]>([])
-const options = computed(() => {
-  return contactStore.contactList.map(name => ({
-    label: name,
-    value: name,
-  }))
-})
+const options = ref<{ label: string, value: string }[]>([])
+
+let selectTimer: ReturnType<typeof setTimeout>
+
+function selectAllKeysName() {
+  // 这一步可能造成卡顿，等对话框打开后再执行加载
+  selectTimer = setTimeout(() => {
+    options.value = contactStore.contactList.map(name => ({
+      label: name,
+      value: name,
+    }))
+    isLoading.value = false
+    selectTimer = null
+  }, 500)
+}
 
 function handleExport() {
   if (transferData.value.length === 0) {
@@ -76,10 +88,14 @@ function handleExport() {
 }
 
 function show() {
+  options.value = []
+  isLoading.value = true
   showModal.value = true
+  selectAllKeysName()
 }
 
 function hide() {
+  clearTimeout(selectTimer)
   showModal.value = false
 }
 

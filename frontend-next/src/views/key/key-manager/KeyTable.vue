@@ -59,6 +59,7 @@ function createColumns(isSmallScreen: boolean): DataTableColumns<RowData> {
   const actionsCol: TableColumn<RowData> = {
     title: '操作',
     key: 'actions',
+    width: 170,
     render(row: RowData) {
       return h(KeyTableActions, { name: row.name })
     },

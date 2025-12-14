@@ -170,15 +170,18 @@ function handleImport() {
     message.error('请选择要导入的密钥！')
     return
   }
-  const keys: Record<string, Uint8Array> = {}
-  options.value.forEach((item) => {
-    keys[item.label] = item.key
-  })
-  transferData.value.forEach((item) => {
-    contactStore.setSecretKey(item, keys[item])
-  })
-  message.success(`成功导入了 ${transferData.value.length} 条哈基密钥！`)
   hide()
+  // 延迟执行，避免关闭对话框的动画受性能影响
+  setTimeout(() => {
+    const keys: Record<string, Uint8Array> = {}
+    options.value.forEach((item) => {
+      keys[item.label] = item.key
+    })
+    transferData.value.forEach((item) => {
+      contactStore.setSecretKey(item, keys[item])
+    })
+    message.success(`成功导入了 ${transferData.value.length} 条哈基密钥！`)
+  }, 500)
 }
 
 function show() {
