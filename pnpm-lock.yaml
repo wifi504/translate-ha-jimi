@@ -86,6 +86,9 @@ importers:
       '@hayalib/encryptor':
         specifier: workspace:*
         version: link:../js-sdk/encryptor
+      '@hayalib/hajihash':
+        specifier: workspace:*
+        version: link:../js-sdk/hajihash
       '@hayalib/utils':
         specifier: workspace:*
         version: link:../js-sdk/utils

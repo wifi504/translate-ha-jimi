@@ -5,14 +5,22 @@
     </template>
     <template #header-extra>
       <n-button-group>
-        <n-button :disabled="!contactStore.hasAuth" @click="handleAddOne">
-          <template #icon>
-            <n-icon>
-              <vi-fluent-add24-regular />
-            </n-icon>
-          </template>
-          新增
-        </n-button>
+        <n-dropdown
+          :options="addKeyOptions"
+          placement="bottom"
+          trigger="click"
+          show-arrow
+          @select="handleSelect"
+        >
+          <n-button :disabled="!contactStore.hasAuth">
+            <template #icon>
+              <n-icon>
+                <vi-fluent-add24-regular />
+              </n-icon>
+            </template>
+            新增
+          </n-button>
+        </n-dropdown>
         <n-button :disabled="!contactStore.hasAuth" @click="() => importKeyDialogRef?.show()">
           <template #icon>
             <n-icon>
@@ -33,6 +41,9 @@
     </template>
     <!-- 密钥管理数据表 -->
     <key-table />
+    <!-- 新增密钥模态框 -->
+    <add-key-dialog-by-word ref="addKeyDialogByWordRef" />
+    <add-key-dialog-by-e2-e ref="addKeyDialogByE2ERef" />
     <!-- 导入导出模态框 -->
     <import-key-dialog ref="importKeyDialogRef" />
     <export-key-dialog ref="exportKeyDialogRef" />
@@ -40,29 +51,52 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import type { DropdownOption } from 'naive-ui'
+import { ApiOutlined, KeyOutlined } from '@vicons/antd'
+import { NIcon } from 'naive-ui'
+import { h, shallowRef } from 'vue'
 import { useContactStore } from '@/stores/contactStore.ts'
+import AddKeyDialogByE2E from '@/views/key/key-manager/dialog/AddKeyDialogByE2E.vue'
+import AddKeyDialogByWord from '@/views/key/key-manager/dialog/AddKeyDialogByWord.vue'
 import ExportKeyDialog from '@/views/key/key-manager/dialog/ExportKeyDialog.vue'
 import ImportKeyDialog from '@/views/key/key-manager/dialog/ImportKeyDialog.vue'
 import KeyTable from '@/views/key/key-manager/KeyTable.vue'
 
 const contactStore = useContactStore()
-const exportKeyDialogRef = ref<InstanceType<typeof ExportKeyDialog>>()
-const importKeyDialogRef = ref<InstanceType<typeof ImportKeyDialog>>()
+const addKeyDialogByE2ERef = shallowRef<InstanceType<typeof AddKeyDialogByE2E>>()
+const addKeyDialogByWordRef = shallowRef<InstanceType<typeof AddKeyDialogByWord>>()
+const exportKeyDialogRef = shallowRef<InstanceType<typeof ExportKeyDialog>>()
+const importKeyDialogRef = shallowRef<InstanceType<typeof ImportKeyDialog>>()
 
-function handleAddOne() {
-  function generateRandomData() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    let str = ''
-    for (let i = 0; i < 8; i++) {
-      str += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    const arr = new Uint8Array(32)
-    crypto.getRandomValues(arr)
-    return { str, arr }
+const addKeyOptions: DropdownOption[] = [
+  {
+    label: '密钥口令生成',
+    key: 'word',
+    icon: () => h(
+      NIcon,
+      () => h(KeyOutlined),
+    ),
+  },
+  {
+    label: '端到端加密',
+    key: 'e2e',
+    icon: () => h(
+      NIcon,
+      () => h(ApiOutlined),
+    ),
+  },
+]
+
+function handleSelect(key: string, _option: DropdownOption) {
+  if (key === 'word') {
+    addKeyDialogByWordRef.value?.show()
+    return
   }
-  const { str, arr } = generateRandomData()
-  contactStore.setSecretKey(str, arr)
+  if (key === 'e2e') {
+    addKeyDialogByE2ERef.value?.show()
+    return
+  }
+  console.warn('没有匹配的选项')
 }
 </script>
 

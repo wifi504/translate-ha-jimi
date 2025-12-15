@@ -16,6 +16,7 @@
     "@hayalib/compressor": "workspace:*",
     "@hayalib/encoder": "workspace:*",
     "@hayalib/encryptor": "workspace:*",
+    "@hayalib/hajihash": "workspace:*",
     "@hayalib/utils": "workspace:*",
     "pinia": "^3.0.3",
     "streamsaver": "^2.0.6",
