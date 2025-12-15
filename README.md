@@ -2,9 +2,9 @@
 
 ![version](https://img.shields.io/badge/version-3.0.0-blue) ![license](https://img.shields.io/badge/license-GPLv3-green) ![vue](https://img.shields.io/badge/vue-3.5.x-4FC08D) ![last-commit](https://img.shields.io/github/last-commit/wifi504/translate-ha-jimi) ![stars](https://img.shields.io/github/stars/wifi504/translate-ha-jimi?style=social)
 
-哈基米加密器 Next 版本，融合了 `v1.0` 与 `v2.0` 的所有功能，现在可以更方便、更优雅的使用。
+哈基米加密器 Next 版本，融合了 `v1.x` 与 `v2.x` 的所有功能，现在可以更方便、更优雅的使用。
 
-点击前往：[哈基密语 Next](https://lhlnb.top/hajimi)
+点击前往：[哈基密文 Next](https://lhlnb.top/hajimi)
 
 ## 📖 还不算介绍的介绍 developing...
 
