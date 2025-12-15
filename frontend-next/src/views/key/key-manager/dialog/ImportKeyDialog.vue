@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import type { TransferRenderTargetLabel } from 'naive-ui'
-import type { TransferKey } from '@/views/key/key-manager/dialog/TransferKeysType.ts'
+import type { TransferKey } from '@/views/key/key-manager/dialog/transfer-keys-type.ts'
 import { decode } from '@hayalib/encoder'
 import { hexToUint8Array } from '@hayalib/utils'
 import { useMessage } from 'naive-ui'

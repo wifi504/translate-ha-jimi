@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import type { TransferKeys } from '@/views/key/key-manager/dialog/TransferKeysType.ts'
+import type { TransferKeys } from '@/views/key/key-manager/dialog/transfer-keys-type.ts'
 import { encode } from '@hayalib/encoder'
 import { uint8ArrayToHex } from '@hayalib/utils'
 import { useMessage } from 'naive-ui'
